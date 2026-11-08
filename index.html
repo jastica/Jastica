@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Jastica</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%236C5CE7'/%3E%3Cpath d='M20 26h24l-2 24H22z' fill='%23fff'/%3E%3Cpath d='M26 26v-4a6 6 0 0 1 12 0v4' stroke='%23fff' stroke-width='4' fill='none'/%3E%3C/svg%3E">
+  <meta name="description" content="Jasa titip belanja dari Jakarta, Malaysia, Singapura, Jepang, dan Thailand dengan kurs transparan.">
+  <!-- Terapkan tema & warna tersimpan sebelum render pertama (tanpa kedip) -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('jst_theme');
+        if (!t) t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+        var c = localStorage.getItem('jst_color');
+        if (c && /^#[0-9a-f]{6}$/i.test(c)) document.documentElement.style.setProperty('--primary', c);
+      } catch (e) { /* penyimpanan lokal tidak tersedia */ }
+    })();
+    // Penjaga muat (v1.4, GitHub Pages): bila file css/js tidak termuat (404) atau skrip error,
+    // tampilkan penyebabnya — bukan layar berputar tanpa akhir.
+    (function () {
+      var gagal = [], errs = [], shown = false;
+      window.__jstFileGagal = function (f) { if (gagal.indexOf(f) === -1) gagal.push(f); if (document.body && /style\.css/.test(f)) setTimeout(tampil, 50); };
+      function siap() { return !!window.__APP_READY__; }
+      function tampil() {
+        var cssGagal = gagal.some(function (f) { return /style\.css/.test(f); });
+        if (shown || (siap() && !cssGagal)) return; shown = true;
+        var lama = document.getElementById('splash'); if (lama) lama.parentNode.removeChild(lama);
+        var sp = document.createElement('div'); sp.id = 'jstMuatGagal'; sp.setAttribute('role', 'alert'); document.body.appendChild(sp);
+        sp.style.cssText = 'position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;background:#F6F4FF;overflow:auto';
+        var box = document.createElement('div');
+        box.style.cssText = 'max-width:620px;margin:16px;padding:22px;border-radius:16px;background:#fff;color:#1F1B2E;box-shadow:0 10px 30px rgba(76,58,191,.15);font:14px/1.55 "Plus Jakarta Sans",system-ui,sans-serif';
+        function el(tag, txt, css) { var x = document.createElement(tag); x.textContent = txt; if (css) x.style.cssText = css; box.appendChild(x); return x; }
+        var e = errs[0];
+        el('div', gagal.length ? 'Sebagian file aplikasi tidak ditemukan' : e ? 'Aplikasi gagal dimuat' : 'Aplikasi belum siap', 'font-size:18px;font-weight:800;margin-bottom:6px;color:#4B3FBF');
+        if (gagal.length) {
+          el('p', 'File berikut gagal dimuat: ' + gagal.join(', ') + '.', 'margin:0 0 10px;color:#B42318;font-weight:600');
+          el('p', 'Pastikan isi repository GitHub sama persis dengan folder frontend: index.html di paling luar, lalu folder css/ (berisi style.css) dan js/ (berisi config.js dan app.js). Unggah lewat terminal (git push), bukan lewat tombol "Upload files" di situs GitHub.', 'margin:0;color:#5B5670');
+        } else if (e) {
+          el('pre', e.m + ' — ' + e.f + ' baris ' + e.l + ', kolom ' + e.c, 'white-space:pre-wrap;word-break:break-all;background:#F6F3FF;border-radius:10px;padding:10px 12px;font:12px/1.5 ui-monospace,Consolas,monospace;margin:0 0 10px');
+          el('p', 'Kirimkan tangkapan layar pesan ini ke pengembang.', 'margin:0;color:#5B5670');
+        } else el('p', 'Periksa koneksi internet lalu muat ulang halaman ini.', 'margin:0;color:#5B5670');
+        sp.appendChild(box);
+      }
+      window.addEventListener('error', function (ev) {
+        if (siap() || !ev || ev.target !== window && ev.target && ev.target.tagName) return;
+        errs.push({ m: String(ev.message || 'Error'), f: String(ev.filename || '').split('/').pop().split('?')[0] || 'skrip', l: ev.lineno || 0, c: ev.colno || 0 });
+      });
+      document.addEventListener('DOMContentLoaded', function () {
+        if (gagal.length) return tampil();
+        setTimeout(function () { if (errs.length || gagal.length) tampil(); }, 2500);
+        setTimeout(tampil, 45000);
+      });
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-c9924c4d" onerror="__jstFileGagal('css/style.css')">
+</head>
+<body data-shell="pub">
+  <a class="skip-link" href="#mainArea">Lewati ke konten</a>
+  <div id="syncBar" class="sync-bar" aria-hidden="true"></div>
+
+  <!-- Layar awal (hilang begitu JavaScript siap) -->
+  <div id="splash" class="splash" role="status" aria-live="polite">
+    <div class="splash-mark"><span class="brand-mark lg"></span></div>
+    <div class="splash-text">Memuat aplikasi…</div>
+  </div>
+
+  <!-- ═════════════ PORTAL CUSTOMER & PUBLIK ═════════════ -->
+  <div id="shellPub" class="shell-pub">
+    <header class="pub-nav" id="pubNav">
+      <div class="container-xl pub-nav-inner">
+        <button class="brand-btn" data-go="home" aria-label="Beranda">
+          <span class="brand-logo" data-brand-logo></span>
+          <span class="brand-text"><b data-brand-name>Jastica</b><small data-brand-tagline>Jasa Titip & Keuangan</small></span>
+        </button>
+        <nav class="pub-links" aria-label="Navigasi utama" id="pubLinks"></nav>
+        <div class="pub-actions" id="pubActions"></div>
+        <button class="icon-btn d-lg-none" data-act="pubMenu" aria-label="Buka menu"><i class="bi bi-list"></i></button>
+      </div>
+    </header>
+    <main id="pubMain" class="pub-main">
+      <section class="view" id="v-home" aria-label="Beranda"></section>
+      <section class="view" id="v-katalog" aria-label="Katalog"></section>
+      <section class="view" id="v-keranjang" aria-label="Keranjang"></section>
+      <section class="view" id="v-pesanan" aria-label="Pesanan saya"></section>
+      <section class="view" id="v-akun" aria-label="Akun saya"></section>
+      <section class="view view-auth" id="v-login" aria-label="Masuk"></section>
+      <section class="view view-auth" id="v-daftar" aria-label="Daftar"></section>
+      <section class="view view-auth" id="v-otp" aria-label="Verifikasi OTP"></section>
+      <section class="view view-auth" id="v-lupa" aria-label="Lupa sandi"></section>
+      <section class="view view-auth" id="v-verifikasi" aria-label="Verifikasi masuk pengurus"></section>
+    </main>
+    <footer class="pub-footer" id="pubFooter"></footer>
+    <nav class="bottom-nav d-lg-none" id="pubBottom" aria-label="Navigasi bawah"></nav>
+  </div>
+
+  <!-- ═════════════ PANEL INTERNAL ═════════════ -->
+  <div id="shellAdm" class="shell-adm">
+    <aside class="sidebar" id="sidebar" aria-label="Menu panel">
+      <button class="brand-btn sb-brand" data-go="a-beranda" aria-label="Beranda panel">
+        <span class="brand-logo" data-brand-logo></span>
+        <span class="brand-text"><b data-brand-name>Jastica</b><small data-brand-tagline>Jasa Titip & Keuangan</small></span>
+      </button>
+      <nav class="sb-nav" id="sbNav"></nav>
+      <div class="sb-foot">
+        <div class="sb-kurs" id="sbKurs"></div>
+        <button class="sb-link" data-go="home"><i class="bi bi-shop"></i><span>Lihat Situs</span></button>
+        <button class="sb-link danger" data-act="logout"><i class="bi bi-box-arrow-right"></i><span>Keluar Sesi</span></button>
+      </div>
+    </aside>
+    <div class="sb-backdrop" data-act="closeSidebar"></div>
+    <div class="adm-main">
+      <header class="topbar" id="topbar">
+        <button class="icon-btn d-xl-none" data-act="openSidebar" aria-label="Buka menu"><i class="bi bi-list"></i></button>
+        <div class="tb-search">
+          <i class="bi bi-search"></i>
+          <input id="globalSearch" type="search" placeholder="Cari no. pesanan, pelanggan, produk…" autocomplete="off" aria-label="Pencarian global">
+          <div class="tb-results" id="globalResults" role="listbox"></div>
+        </div>
+        <button class="live-chip" id="liveChip" data-go="a-kurs" title="Kurs live"><span class="dot"></span><span id="liveChipText">LIVE Kurs</span></button>
+        <div class="tb-right">
+          <div class="dropdown">
+            <button class="icon-btn" data-bs-toggle="dropdown" aria-label="Notifikasi" id="bellBtn"><i class="bi bi-bell"></i><span class="bell-badge" id="bellBadge" hidden>0</span></button>
+            <div class="dropdown-menu dropdown-menu-end notif-menu" id="notifMenu"></div>
+          </div>
+          <button class="icon-btn" data-act="toggleTheme" aria-label="Ganti tema terang/gelap"><i class="bi bi-moon-stars" data-theme-icon></i></button>
+          <div class="dropdown">
+            <button class="user-chip" data-bs-toggle="dropdown" aria-label="Menu akun">
+              <span class="uc-text"><b id="ucName">-</b><small id="ucRole">-</small></span>
+              <span class="avatar" id="ucAvatar">-</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><button class="dropdown-item" data-go="a-akun"><i class="bi bi-person-circle me-2"></i>Akun Saya</button></li>
+              <li><button class="dropdown-item" data-go="home"><i class="bi bi-shop me-2"></i>Lihat Situs</button></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item text-danger" data-act="logout"><i class="bi bi-box-arrow-right me-2"></i>Keluar</button></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <main id="admMain" class="adm-content">
+        <section class="view" id="v-a-beranda"></section>
+        <section class="view" id="v-a-pesanan"></section>
+        <section class="view" id="v-a-form"></section>
+        <section class="view" id="v-a-customer"></section>
+        <section class="view" id="v-a-pembelian"></section>
+        <section class="view" id="v-a-pembayaran"></section>
+        <section class="view" id="v-a-dompet"></section>
+        <section class="view" id="v-a-biaya"></section>
+        <section class="view" id="v-a-kurs"></section>
+        <section class="view" id="v-a-invoice"></section>
+        <section class="view" id="v-a-pengingat"></section>
+        <section class="view" id="v-a-laporan"></section>
+        <section class="view" id="v-a-voucher"></section>
+        <section class="view" id="v-a-katalog"></section>
+        <section class="view" id="v-a-pengaturan"></section>
+        <section class="view" id="v-a-users"></section>
+        <section class="view" id="v-a-akun"></section>
+      </main>
+    </div>
+    <nav class="bottom-nav adm-bottom d-xl-none" id="admBottom" aria-label="Navigasi bawah"></nav>
+  </div>
+
+  <span id="mainArea" tabindex="-1" class="visually-hidden">Konten utama</span>
+
+  <!-- ═════════════ KOMPONEN GLOBAL ═════════════ -->
+  <div class="modal fade" id="mdl" tabindex="-1" aria-hidden="true" aria-labelledby="mdlTitle">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" id="mdlDialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title" id="mdlTitle">-</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body" id="mdlBody"></div>
+        <div class="modal-footer" id="mdlFoot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="mdlConfirm" tabindex="-1" aria-hidden="true" aria-labelledby="cfTitle">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-body text-center p-4">
+          <div class="cf-icon" id="cfIcon"><i class="bi bi-question-lg"></i></div>
+          <h2 class="cf-title" id="cfTitle">Yakin?</h2>
+          <p class="cf-text" id="cfText"></p>
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-light flex-fill" data-bs-dismiss="modal" id="cfNo">Batal</button>
+            <button class="btn btn-primary flex-fill" id="cfYes">Ya</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="mdlPreview" tabindex="-1" aria-hidden="true" aria-labelledby="pvTitle">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title" id="pvTitle">Pratinjau</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body p-0" id="pvBody"></div>
+        <div class="modal-footer">
+          <button class="btn btn-light" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1"></i>Tutup</button>
+          <a class="btn btn-primary" id="pvDownload" href="#" target="_blank" rel="noopener"><i class="bi bi-download me-1"></i>Unduh</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="mdlSession" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-body text-center p-4">
+          <div class="cf-icon warn"><i class="bi bi-phone-flip"></i></div>
+          <h2 class="cf-title">Sesi berakhir</h2>
+          <p class="cf-text" id="sessionText">Akun ini masuk di perangkat lain.</p>
+          <button class="btn btn-primary w-100 mt-2" data-act="sessionRelogin">Masuk lagi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="offcanvas offcanvas-end drawer" tabindex="-1" id="drawer" aria-labelledby="drawerTitle">
+    <div class="offcanvas-header">
+      <div id="drawerTitle" class="drawer-title">-</div>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Tutup"></button>
+    </div>
+    <div class="offcanvas-body" id="drawerBody"></div>
+    <div class="drawer-foot" id="drawerFoot"></div>
+  </div>
+
+  <div class="offcanvas offcanvas-start pub-menu" tabindex="-1" id="pubMenu" aria-label="Menu">
+    <div class="offcanvas-header">
+      <span class="brand-text"><b data-brand-name>Jastica</b></span>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Tutup"></button>
+    </div>
+    <div class="offcanvas-body" id="pubMenuBody"></div>
+  </div>
+
+  <div class="toast-stack" id="toasts" aria-live="polite" aria-atomic="false"></div>
+  <div id="printArea" class="print-area" aria-hidden="true"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/id.js" defer></script>
+  <!-- Satu-satunya pengaturan: alamat Web App Apps Script di js/config.js -->
+  <script src="js/config.js?v=1.4.0" onerror="__jstFileGagal('js/config.js')"></script>
+  <script src="js/app.js?v=1.4.0-55cef73c" onerror="__jstFileGagal('js/app.js')"></script>
+</body>
+</html>

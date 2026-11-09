@@ -773,7 +773,7 @@ function renderFooter() {
     <div class="col-lg-4"><div class="d-flex align-items-center gap-2 mb-3"><span class="brand-logo">${s.logoUrl ? `<img src="${esc(s.logoUrl)}" alt="">` : LOGO_SVG}</span><b class="text-white fs-5">${esc(s.appName || 'Jastica')}</b></div>
       <p class="mb-0" style="max-width:340px">Layanan jastip dengan kurs transparan, rincian biaya jelas, dan invoice rapi langsung ke WhatsApp Anda.</p></div>
     <div class="col-6 col-lg-2"><h4>Navigasi</h4><button class="link-btn" data-go="katalog">Katalog</button><button class="link-btn" data-go="home#estimator">Kalkulator Kurs</button><button class="link-btn" data-go="home#cara">Cara Pesan</button><button class="link-btn" data-go="pesanan">Lacak Pesanan</button></div>
-    <div class="col-6 col-lg-3"><h4>Hubungi Kami</h4><a href="${waLink(s.bizHP, 'Halo ' + (s.appName || '') + ', saya mau tanya jastip.')}" target="_blank" rel="noopener"><i class="bi bi-whatsapp me-2"></i>${esc(fmtHP(s.bizHP))}</a>${s.bizEmail ? `<a href="mailto:${esc(s.bizEmail)}"><i class="bi bi-envelope me-2"></i>${esc(s.bizEmail)}</a>` : ''}<span class="d-block"><i class="bi bi-geo-alt me-2"></i>${esc(s.bizAlamat || '')}</span></div>
+    <div class="col-6 col-lg-3"><h4>Hubungi Kami</h4><a href="${waLink(s.bizHP, 'Halo ' + (s.appName || '') + ', saya mau tanya jastip.')}" target="_blank" rel="noopener"><i class="bi bi-whatsapp me-2"></i>${esc(fmtHP(s.bizHP))}</a>${s.bizEmail ? `<a href="mailto:${esc(s.bizEmail)}"><i class="bi bi-envelope me-2"></i>${esc(s.bizEmail)}</a>` : ''}${kontakIgHtml(s)}<span class="d-block"><i class="bi bi-geo-alt me-2"></i>${esc(s.bizAlamat || '')}</span>${kontakGrupWaHtml(s)}</div>
     <div class="col-lg-3"><h4>Rute Jastip</h4><div class="d-flex flex-wrap gap-2">${countries().map(c => `<span class="tag" style="background:rgba(255,255,255,.08);color:#fff">${flag(c.kode)} ${esc(c.nama)}</span>`).join('')}</div></div>
   </div><div class="copy">© ${new Date().getFullYear()} ${esc(s.appName || 'Jastica')}. Seluruh hak cipta dilindungi.</div></div>`;
 }
@@ -955,11 +955,12 @@ function prodCard(it) {
   const sisa = sisaStok(it), laris = peringkatKatalog().laris.has(it.ID); // v1.3.4: terlaris, rating, terjual, sisa stok
   const hk = hargaKartu(it), adaVarian = varianOf(it).length > 0; // v1.3.5: galeri, varian, jasa titip per barang
   return `<article class="cardx prod card-hover ${it.Promo || laris ? 'is-hot' : ''} ${laris ? 'is-laris' : ''}">
-    <div class="prod-media">${galeriHtml(it, { act: 'prodDetail' })}<div class="prod-chips">${chipNegara(it)}${badgeKatalog(it)}</div>${badgeBawah(it)}</div>
-    <div class="small muted">${esc(it.Kategori || '')}</div>
-    <h3 class="clamp-2"><button type="button" class="prod-judul" data-act="prodDetail" data-id="${it.ID}">${esc(it.Nama)}</button></h3>
+    <div class="prod-media">${galeriHtml(it, { act: 'prodDetail' })}${badgeBawah(it)}</div>
+    <div class="prod-info-baris"><div class="prod-chips-info">${chipNegara(it)}${badgeKatalog(it)}</div></div>
+    <div class="prod-judul-blok"><h3 class="clamp-2"><button type="button" class="prod-judul" data-act="prodDetail" data-id="${it.ID}">${esc(it.Nama)}</button></h3>
+    <div class="small muted prod-kat">${esc(it.Kategori || '')}</div></div>
     ${metaKatalog(it)}${varianRingkas(it)}
-    <div><div class="price">${hk.beda ? '<span class="mulai">mulai</span>' : ''}${rp(hk.harga)}</div><div class="orig">${teksJasaKartu(hk.jasa)}</div></div>
+    <div><div class="price">${hk.beda ? '<span class="mulai">mulai</span>' : ''}${rp(hk.harga)}</div>${jasaKartuTampil() ? `<div class="orig">${teksJasaKartu(hk.jasa)}</div>` : ''}</div>
     ${S.me ? (adaVarian ? `<div class="act">${sisa === 0 ? '<button class="btn btn-light btn-sm" disabled>Habis</button>' : `<button class="btn btn-primary btn-sm" data-act="prodDetail" data-id="${it.ID}"><i class="bi bi-palette"></i>Pilih varian</button>`}</div>`
       : `<div class="act"><div class="stepper" role="group" aria-label="Jumlah"><button type="button" data-act="stepDown" data-for="${qid}" aria-label="Kurangi" ${sisa === 0 ? 'disabled' : ''}>−</button><input id="${qid}" type="number" min="1" max="${sisa === null ? 99 : Math.max(1, Math.min(99, sisa))}" value="${qtyTitip(it.ID)}" data-item="${it.ID}" aria-label="Jumlah ${esc(it.Nama)}" ${sisa === 0 ? 'disabled' : ''}><button type="button" data-act="stepUp" data-for="${qid}" aria-label="Tambah" ${sisa === 0 ? 'disabled' : ''}>+</button></div>
       ${sisa === 0 ? '<button class="btn btn-light btn-sm" disabled>Habis</button>' : `<button class="btn btn-primary btn-sm" data-act="addCart" data-id="${it.ID}" data-qty="${qid}"><i class="bi bi-plus-lg"></i>Titip</button>`}</div>`) : ''}
@@ -1010,9 +1011,9 @@ function vHome(el, p, re) {
   <section class="section" id="cara"><div class="container-xl">
     <div class="section-head"><div><div class="eyebrow-sm">Cara Titip</div><h2>Empat langkah mudah</h2></div></div>
     <div class="steps4">${[
-      ['bi-search', 'Pilih barang atau request', 'Pilih dari katalog atau kirim link/foto barang yang tidak ada di katalog.'],
+      ['bi-search', 'Pilih barang', 'Pilih barang yang Anda mau dari katalog.'],
       ['bi-calculator', 'Lihat kalkulasi otomatis', 'Kurs live dan biaya jasa langsung terhitung. Total jelas sebelum konfirmasi.'],
-      ['bi-wallet2', 'Bayar & kami belanjakan', 'Transfer ke rekening resmi lalu unggah bukti. Shopper kami belanja di toko resmi.'],
+      ['bi-wallet2', 'Bayar & kami belanjakan', 'Transfer ke rekening resmi lalu kirim bukti ke WhatsApp admin. Shopper kami belanja di toko resmi.'],
       ['bi-box-seam', 'Terima di rumah', 'Barang dikirim kurir pilihan Anda. Invoice & status dikirim ke WhatsApp.']
     ].map((x, i) => `<div class="cardx step-card"><div class="n"><i class="bi ${x[0]}"></i></div><div class="small-caps mb-1">Langkah ${i + 1}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join('')}</div>
   </div></section>
@@ -1059,13 +1060,8 @@ function renderEstimator() {
     ${gab ? '' : `<div class="row-x"><span>${esc(labelJasaMember(neg))}</span><b class="num">${rp(h.jasaIDR)}</b></div>`}
     <div class="row-x"><span>${kur.nama === 'Ambil sendiri' ? 'Ambil sendiri (pick up)' : 'Ongkir domestik (' + esc(kur.nama) + ')'}</span><b class="num">${rp(kur.harga)}</b></div>
     <div class="total"><span>Estimasi total</span><b class="num">${rp(total)}</b></div>
-    <div class="d-flex gap-2 mt-3 flex-wrap"><a class="btn btn-wa flex-fill" href="${waLink(s.bizHP, text)}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i>Tanya via WhatsApp</a>${S.me ? '<button class="btn btn-primary flex-fill" data-act="estToCart"><i class="bi bi-bag-plus"></i>Titip barang ini</button>' : ''}</div>`;
+    <div class="d-flex gap-2 mt-3 flex-wrap"><a class="btn btn-wa flex-fill" href="${waLink(s.bizHP, text)}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i>Tanya via WhatsApp</a></div>`;
 }
-ACT.estToCart = () => {
-  S.ui.custom = { negara: $('#estNeg').value, hargaAsli: $('#estHarga').value, qty: $('#estQty').value };
-  go('keranjang');
-  fokusAwal('#fCustom [name=nama]');
-};
 
 // ── Katalog ──
 ROUTES.katalog = { shell: 'pub', title: 'Katalog', r: vKatalog };
@@ -1083,7 +1079,7 @@ function vKatalog(el, p, re) {
     <div class="trip-strip">${at ? `<span class="pill-neon"><span class="neon-dot" aria-hidden="true"></span><span class="neon-txt">Trip Aktif</span></span><b>${flag(at.Negara)} ${esc(at.Kota)}</b><span class="muted">${tglPendek(at.TglMulai)} – ${tgl(at.TglSelesai)}</span>` : '<span class="lbl">KURS LIVE</span>'}
       <span class="ms-lg-auto d-flex gap-2 flex-wrap">${['JPY', 'SGD', 'MYR', 'THB'].map(m => `<span class="tag">1 ${m} = ${rp(k.rates[m])}</span>`).join('')}</span></div>
     <div class="page-head"><div><h1>Katalog barang jastip</h1><p>Harga sudah dikonversi ke Rupiah dengan kurs terbaru. ${jasaGabung() ? 'Harga sudah termasuk jasa titip.' : 'Biaya jasa dihitung di keranjang.'}</p></div>
-      ${S.me ? '<div class="actions"><button class="btn btn-light" data-go="keranjang"><i class="bi bi-plus-circle"></i>Request barang khusus</button></div>' : ''}</div>
+</div>
     <div class="row g-4">
       <div class="col-lg-3"><div class="cardx filter-card">
         <div class="input-icon"><i class="bi bi-search"></i><input class="form-control" id="katQ" type="search" placeholder="Cari nama barang…" value="${esc(st.q)}" aria-label="Cari barang"></div>
@@ -1177,40 +1173,16 @@ function vKeranjang(el, p, re) {
   if (S.customer && !co.alamat) co.alamat = S.customer.Alamat || '';
   if (S.customer && !co.kurir && S.customer.KurirFavorit) co.kurir = S.customer.KurirFavorit;
   if (re && el.dataset.ready) { renderCartList(); renderCartSum(); return; }
-  const cu = S.ui.custom || {};
   el.innerHTML = `<div class="container-xl py-4">
-    <div class="stepbar"><div class="on"><i class="bi bi-bag"></i>1. Keranjang & request</div><div><i class="bi bi-check2-circle"></i>2. Konfirmasi pesanan</div><div><i class="bi bi-wallet2"></i>3. Bayar & lacak</div></div>
-    <div class="page-head"><div><h1>Keranjang & request titip</h1><p>Periksa barang, tambahkan request khusus, lalu konfirmasi. Harga final dihitung ulang dengan kurs saat konfirmasi.</p></div></div>
+    <div class="stepbar"><div class="on"><i class="bi bi-bag"></i>1. Keranjang</div><div><i class="bi bi-check2-circle"></i>2. Konfirmasi pesanan</div><div><i class="bi bi-wallet2"></i>3. Bayar & lacak</div></div>
+    <div class="page-head"><div><h1>Keranjang titip</h1><p>Periksa barang, lalu konfirmasi. Harga final dihitung ulang dengan kurs saat konfirmasi.</p></div></div>
     <div class="row g-4">
       <div class="col-lg-7">
         <div class="cardx mb-4"><div class="cardx-head"><h3><i class="bi bi-bag-check me-2"></i>Barang yang dititip</h3><span class="count" id="cartN"></span></div><div class="cardx-body" id="cartList"></div></div>
-        <div class="cardx"><div class="cardx-head"><div><h3><i class="bi bi-link-45deg me-2"></i>Request barang di luar katalog</h3><div class="cardx-sub">Masukkan link toko resmi atau deskripsi. Shopper kami memverifikasi ketersediaan & harga.</div></div></div>
-          <div class="cardx-body"><form id="fCustom" class="row g-3" novalidate>
-            <div class="col-sm-6"><label class="form-label">Negara / trip <span class="req">*</span></label><select class="form-select" name="negara">${(() => { const cm = countriesMember(); const pil = cm.some(c => c.kode === cu.negara) ? cu.negara : cm.some(c => c.kode === 'JP') ? 'JP' : (cm[0] || {}).kode; return cm.map(c => `<option value="${c.kode}" ${pil === c.kode ? 'selected' : ''}>${esc(c.nama)} (${c.mataUang})</option>`).join(''); })()}</select></div>
-            <div class="col-sm-6"><label class="form-label">Nama barang & merek <span class="req">*</span></label><input class="form-control" name="nama" placeholder="Contoh: Onitsuka Tiger Mexico 66" maxlength="120"></div>
-            <div class="col-12"><label class="form-label">Link toko (opsional)</label><input class="form-control" name="link" type="url" placeholder="https://…" maxlength="300"></div>
-            <div class="col-sm-5"><label class="form-label">Harga di toko <span class="req">*</span></label><div class="input-group"><span class="input-group-text" id="cuMu">${muOf(cu.negara || (countriesMember()[0] || {}).kode || 'JP')}</span><input class="form-control" name="hargaAsli" inputmode="decimal" data-uang="mu" data-mu-dari="[name=negara]" value="${esc(cu.hargaAsli || '')}" placeholder="0"></div><div class="form-text" id="cuPrev"></div></div>
-            <div class="col-sm-3"><label class="form-label">Jumlah</label><input class="form-control" name="qty" type="number" min="1" value="${esc(cu.qty || 1)}"></div>
-            <div class="col-sm-4"><label class="form-label">Ukuran / varian</label><input class="form-control" name="varian" placeholder="Size 42, warna…" maxlength="120"></div>
-            <div class="col-12"><button class="btn btn-soft w-100" type="submit"><i class="bi bi-plus-circle"></i>Masukkan ke keranjang sebagai request</button></div>
-          </form></div></div>
       </div>
       <div class="col-lg-5"><div class="cardx pad-lg" style="position:sticky;top:88px" id="cartSum"></div></div>
     </div></div>`;
   el.dataset.ready = '1';
-  const f = $('#fCustom');
-  const prevCu = () => { const neg = f.negara.value; $('#cuMu').textContent = muOf(neg); const v = angkaHarga(f.hargaAsli.value, muOf(neg)); $('#cuPrev').textContent = v ? '≈ ' + rp(v * kursOf(muOf(neg))) + ' per barang' : ''; };
-  f.addEventListener('input', prevCu); prevCu();
-  f.onsubmit = e => {
-    e.preventDefault(); clearErr(f);
-    const d = formData(f);
-    if (d.nama.length < 3) return fieldErr(f, 'nama', 'Isi nama barang & merek.');
-    if (angkaHarga(d.hargaAsli, muOf(d.negara)) <= 0) return fieldErr(f, 'hargaAsli', 'Isi perkiraan harga di toko.');
-    S.cart.push({ key: uid(), custom: true, nama: d.nama, link: d.link, negara: d.negara, mataUang: muOf(d.negara), hargaAsli: angkaHarga(d.hargaAsli, muOf(d.negara)), qty: Math.max(1, Number(d.qty) || 1), varian: d.varian });
-    saveCart(); f.reset(); S.ui.custom = null; prevCu();
-    renderCartList(); renderCartSum();
-    toast('Request ditambahkan ke keranjang.', 'success');
-  };
   renderCartList(); renderCartSum();
 }
 function renderCartList() {
@@ -1223,7 +1195,7 @@ function renderCartList() {
         ${l.hilang ? `<div class="invalid-msg"><i class="bi bi-exclamation-triangle"></i>${l.it ? 'Pilihan varian sudah berubah. Hapus lalu pilih lagi dari katalog.' : 'Barang tidak tersedia lagi. Hapus dari keranjang.'}</div>` : l.tutup ? `<div class="invalid-msg"><i class="bi bi-exclamation-triangle"></i>Titipan dari ${esc(negara(l.negara).nama)} sedang tidak dibuka. Hapus dari keranjang.</div>` : ''}</div>
       <div class="text-end"><div class="stepper mb-2"><button data-act="cartQty" data-key="${l.c.key}" data-d="-1" aria-label="Kurangi">−</button><input value="${l.qty}" readonly aria-label="Jumlah"><button data-act="cartQty" data-key="${l.c.key}" data-d="1" aria-label="Tambah">+</button></div>
         <div class="fw-bold num">${rp(l.subtotal)}</div><button class="link-btn small text-danger" data-act="cartDel" data-key="${l.c.key}">Hapus</button></div>
-    </div>`).join('') : emptyState('bi-bag', 'Keranjang masih kosong', 'Pilih barang dari katalog atau tambahkan request barang khusus di bawah.', '<button class="btn btn-primary" data-go="katalog">Buka katalog</button>');
+    </div>`).join('') : emptyState('bi-bag', 'Keranjang masih kosong', 'Pilih barang dari katalog untuk mulai titip.', '<button class="btn btn-primary" data-go="katalog">Buka katalog</button>');
 }
 /** Hitung ringkasan keranjang: pengiriman, voucher, poin (cermin server; server tetap menghitung ulang). */
 function hitungKeranjang() {
@@ -1342,7 +1314,6 @@ function invoicePaper(o, opt = {}) {
   const s = sett();
   const items = itemsOf(o.ID);
   const gab = jasaGabung() && (!isInternal() || opt.dokumen);
-  const bayarOk = !isInternal() && adaMetodeBayar() && o.Sisa > 0 && o.Status !== 'Batal' && !o._pending;
   const inv = o.InvoiceID ? invById(o.InvoiceID) : null;
   const pays = paysOf(o.ID);
   const neg = negara(o.Negara);
@@ -1363,8 +1334,7 @@ function invoicePaper(o, opt = {}) {
     <div class="row g-3 mt-1"><div class="col-md-6">
       <div class="pay-box"><div class="small-caps mb-2" style="color:#6B6885"><i class="bi bi-bank"></i> Instruksi pembayaran</div>${(s.bankInfo || []).map(bk => `<div class="d-flex justify-content-between align-items-center gap-2 py-1"><div><b>${esc(bk.bank)}</b> <span class="num">${esc(bk.noRek)}</span><div class="small muted">a.n. ${esc(bk.atasNama)}</div></div><button class="btn btn-sm btn-light" data-act="copy" data-text="${esc(bk.noRek)}"><i class="bi bi-copy"></i>Salin</button></div>`).join('')}
         ${ewalletAktif().map(e => `<div class="d-flex justify-content-between align-items-center gap-2 py-1"><div><b>${esc(e.nama)}</b> <span class="num">${esc(e.nomor)}</span><div class="small muted">a.n. ${esc(e.atasNama)}</div></div><button class="btn btn-sm btn-light" data-act="copy" data-text="${esc(e.nomor)}"><i class="bi bi-copy"></i>Salin</button></div>`).join('')}
-        ${bayarOk ? `<div class="qris-cta mt-2"><i class="bi bi-wallet2"></i><div class="min-w-0"><b>Bayar sekarang</b><div class="small muted">Transfer, QRIS, atau e-wallet · ${rp(o.Sisa)}</div></div><button class="btn btn-sm btn-primary ms-auto" data-act="bayarPilih" data-id="${o.ID}">Bayar</button></div>` : ''}
-        <div class="small muted mt-2">Unggah bukti pembayaran lewat tombol di bawah. Verifikasi oleh admin.</div></div>
+        <div class="small muted mt-2">Setelah transfer, kirim bukti pembayaran ke admin lewat WhatsApp. Verifikasi oleh admin.</div></div>
       ${o.Catatan ? `<div class="small mt-3"><div class="small-caps" style="color:#6B6885">Catatan</div>${esc(o.Catatan)}</div>` : ''}
     </div><div class="col-md-6"><div class="tot-box">
       ${gab ? `<div class="sum-row"><span>Subtotal barang</span><b>${rp((Number(o.Subtotal) || 0) + (Number(o.JasaTitip) || 0))}</b></div>` : `<div class="sum-row"><span>Subtotal barang</span><b>${rp(o.Subtotal)}</b></div>
@@ -1389,18 +1359,21 @@ function timelineOrder(o) {
 }
 ROUTES.pesanan = { shell: 'pub', title: 'Pesanan Saya', r: vPesananSaya, auth: 'customer' };
 function vPesananSaya(el) {
-  const st = S.ui.ps || (S.ui.ps = { tab: 'Semua', sel: null });
+  // v1.4.1: urutan tab Semua, Belum Bayar (bawaan), Dibeli, Dikirim, Selesai
+  const st = S.ui.ps || (S.ui.ps = { tab: 'Belum Bayar', sel: null });
   const all = ordersSorted();
-  const tabs = ['Semua', 'Baru', 'Dibeli', 'Dikirim', 'Selesai', 'Belum Lunas'];
-  const cnt = t => t === 'Semua' ? all.length : t === 'Belum Lunas' ? all.filter(o => o.Sisa > 0 && o.Status !== 'Batal').length : all.filter(o => o.Status === t).length;
-  const list = all.filter(o => st.tab === 'Semua' || (st.tab === 'Belum Lunas' ? o.Sisa > 0 && o.Status !== 'Batal' : o.Status === st.tab));
+  const tabs = ['Semua', 'Belum Bayar', 'Dibeli', 'Dikirim', 'Selesai'];
+  if (!tabs.includes(st.tab)) st.tab = 'Belum Bayar';
+  const belumBayar = o => o.Sisa > 0 && o.Status !== 'Batal';
+  const cnt = t => t === 'Semua' ? all.length : t === 'Belum Bayar' ? all.filter(belumBayar).length : all.filter(o => o.Status === t).length;
+  const list = all.filter(o => st.tab === 'Semua' || (st.tab === 'Belum Bayar' ? belumBayar(o) : o.Status === st.tab));
   if (!st.sel || !list.some(o => o.ID === st.sel)) st.sel = list[0] ? list[0].ID : null;
   const o = st.sel ? orderById(st.sel) : null;
   const outstanding = all.filter(x => x.Status !== 'Batal').reduce((s, x) => s + (x.Sisa || 0), 0);
   el.innerHTML = `<div class="container-xl py-4">
     <div class="page-head"><div><h1>Pesanan saya</h1><p>Pantau status titipan dan unduh invoice resmi.</p></div>
       <div class="cardx pad d-flex gap-4"><div><div class="small-caps">Pesanan aktif</div><b class="fs-5">${all.filter(x => !['Selesai', 'Batal'].includes(x.Status)).length}</b></div><div><div class="small-caps">Sisa tagihan</div><b class="fs-5" style="color:var(--danger)">${rp(outstanding)}</b></div></div></div>
-    <div class="tabs-x">${tabs.map(t => `<button class="chip ${st.tab === t ? 'on' : ''} ${t === 'Belum Lunas' ? 'danger' : ''}" data-act="psTab" data-tab="${t}">${t}<span class="count">${cnt(t)}</span></button>`).join('')}</div>
+    <div class="tabs-x">${tabs.map(t => `<button class="chip ${st.tab === t ? 'on' : ''} ${t === 'Belum Bayar' ? 'danger' : ''}" data-act="psTab" data-tab="${t}">${t}<span class="count">${cnt(t)}</span></button>`).join('')}</div>
     ${!all.length ? `<div class="cardx">${emptyState('bi-receipt', 'Belum ada pesanan', 'Mulai titip barang dari katalog. Pesanan Anda akan muncul di sini.', '<button class="btn btn-primary" data-go="katalog">Buka katalog</button>')}</div>` : `
     <div class="row g-4"><div class="col-lg-5">
       ${list.map(x => `<article class="cardx ord-card ${x.ID === st.sel ? 'on' : ''}" data-act="psSel" data-id="${x.ID}" tabindex="0" role="button" aria-pressed="${x.ID === st.sel}">
@@ -1410,12 +1383,9 @@ function vPesananSaya(el) {
         ${belumDiulas(x) ? `<div class="ulas-ajak"><span aria-hidden="true">★</span>Beri ulasan ${belumDiulas(x)} barang${poinUlasanAktif() ? ` · +${num(poinUlasan() * belumDiulas(x))} poin` : ''}</div>` : ''}
       </article>`).join('') || `<div class="cardx">${emptyState('bi-funnel', 'Tidak ada pesanan', 'Tidak ada pesanan di tab ini.')}</div>`}
     </div><div class="col-lg-7">${o ? `
-      <div class="d-flex flex-wrap gap-2 mb-3">
-        <button class="btn btn-primary" data-act="custPdf" data-id="${o.ID}" ${o._pending ? 'disabled' : ''}><i class="bi bi-download"></i>Unduh PDF invoice</button>
-        <button class="btn btn-light" data-act="printInvoice" data-id="${o.ID}"><i class="bi bi-printer"></i>Cetak</button>
-        ${o.Sisa > 0 && o.Status !== 'Batal' && adaMetodeBayar() ? `<button class="btn btn-qris" data-act="bayarPilih" data-id="${o.ID}" ${o._pending ? 'disabled' : ''}><i class="bi bi-wallet2"></i>Bayar sekarang</button>` : ''}
-        ${o.Sisa > 0 && o.Status !== 'Batal' ? `<button class="btn btn-coral" data-act="custBayar" data-id="${o.ID}" ${o._pending ? 'disabled' : ''}><i class="bi bi-cloud-arrow-up"></i>Upload bukti bayar</button>` : ''}
+      <div class="ps-aksi mb-3">
         <a class="btn btn-wa" href="${waLink(sett().bizHP, 'Halo, saya mau tanya pesanan ' + o.NoOrder)}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i>Bantuan</a>
+        <button class="btn btn-primary" data-act="custPdf" data-id="${o.ID}" ${o._pending ? 'disabled' : ''}><i class="bi bi-download"></i>Unduh Invoice</button>
         ${bisaBatalMember(o) ? `<button class="btn btn-danger-soft" data-act="custBatal" data-id="${o.ID}"><i class="bi bi-x-circle"></i>Batalkan pesanan</button>` : ''}
       </div>
       ${kartuUlasanOrder(o)}
@@ -1430,6 +1400,8 @@ ACT.psSel = b => { S.ui.ps.sel = b.dataset.id; rerender(); if (window.innerWidth
 ACT.custPdf = async b => {
   const res = await (async () => { setBusy(b, true, 'Menyiapkan…'); const r = await api('invoice.pdf', { orderId: b.dataset.id }); setBusy(b, false); return r; })();
   if (res.success) preview({ fileId: res.data.fileId, nama: res.data.noInvoice + '.pdf' });
+  // v1.4.1: tombol Cetak dihapus → bila invoice resmi belum terbit, rincian pesanan dibuka di jendela cetak (Simpan sebagai PDF)
+  else if (/belum diterbitkan/i.test(res.message || '')) { toast('Invoice resmi belum diterbitkan admin. Rincian pesanan dibuka — pilih "Simpan sebagai PDF" untuk mengunduh.', 'info'); ACT.printInvoice(b); }
   else { toast(res.message, 'info'); }
 };
 ACT.printInvoice = b => {
@@ -3047,9 +3019,9 @@ function aVoucher(el, p, re) {
       .sort((a, b) => String(b.Dibuat).localeCompare(String(a.Dibuat)));
     body = `<div class="cardx"><div class="filter-bar"><div class="input-icon grow"><i class="bi bi-search"></i><input class="form-control" id="vcQ" placeholder="Cari kode, customer, atau no. pesanan…" value="${esc(st.q)}"></div>
       <div class="chips">${[['', 'Semua'], ['Aktif', 'Aktif'], ['Terpakai', 'Terpakai'], ['Kedaluwarsa', 'Kedaluwarsa'], ['Nonaktif', 'Nonaktif']].map(([v, t]) => `<button class="chip ${st.f === v ? 'on' : ''}" data-act="vcFilter" data-v="${v}">${t}</button>`).join('')}</div></div>
-      <div class="cardx-body pt-0"><div class="tbl-wrap">${list.length ? `<table class="tbl"><thead><tr><th>Kode</th><th>Potongan</th><th class="r">Min. belanja</th><th>Masa berlaku</th><th>Status</th><th>Dipakai oleh</th><th></th></tr></thead><tbody>${list.map(v => {
+      <div class="cardx-body pt-0">${vcBilahPilih(list)}<div class="tbl-wrap">${list.length ? `<table class="tbl tbl-vc"><thead><tr><th class="cek"><span class="visually-hidden">Pilih</span></th><th>Kode</th><th>Potongan</th><th class="r">Min. belanja</th><th>Masa berlaku</th><th>Status</th><th>Dipakai oleh</th><th></th></tr></thead><tbody>${list.map(v => {
         const s = statusVoucher(v); const bisa = s !== 'Terpakai';
-        return `<tr><td class="nowrap"><b class="mono">${esc(v.Kode)}</b> <button class="icon-btn sm" data-act="copy" data-text="${esc(v.Kode)}" aria-label="Salin kode ${esc(v.Kode)}"><i class="bi bi-copy"></i></button>${v.Catatan ? `<span class="sub clamp-1">${esc(v.Catatan)}</span>` : ''}</td>
+        return `<tr class="${vcPilihSet().includes(v.ID) ? 'dipilih' : ''}">${vcCekBaris(v)}<td class="nowrap"><b class="mono">${esc(v.Kode)}</b> <button class="icon-btn sm" data-act="copy" data-text="${esc(v.Kode)}" aria-label="Salin kode ${esc(v.Kode)}"><i class="bi bi-copy"></i></button>${v.Catatan ? `<span class="sub clamp-1">${esc(v.Catatan)}</span>` : ''}</td>
           <td class="nowrap">${esc(labelVoucher(specVoucher(v)))}</td><td class="r num">${v.MinBelanja ? rp(v.MinBelanja) : '-'}</td>
           <td class="nowrap">${tglPendek(v.BerlakuMulai)} – ${tgl(v.BerlakuSampai)}${s === 'Aktif' ? `<span class="sub">${esc(sisaHari(v.BerlakuSampai))}</span>` : ''}</td>
           <td>${pill(s, STATUS_VC[s])}</td>
@@ -3654,7 +3626,7 @@ function aPengaturan(el, p, re) {
       <div class="col-12"><label class="form-label">Warna utama</label><div class="d-flex gap-3 align-items-center flex-wrap"><div class="color-swatches" id="colSw">${presets.map(c => `<button type="button" class="${(s.primaryColor || '').toUpperCase() === c ? 'on' : ''}" style="background:${c}" data-c="${c}" aria-label="Warna ${c}"></button>`).join('')}</div><input type="color" class="form-control form-control-color" name="primaryColor" value="${esc(s.primaryColor || '#6C5CE7')}" aria-label="Pilih warna" style="width:56px;height:44px;padding:4px"></div><div class="form-text">Pratinjau langsung. Klik simpan agar berlaku untuk semua pengguna.</div></div>
       <div class="col-sm-6"><label class="form-label">WhatsApp usaha</label><input class="form-control" name="bizHP" value="${esc(s.bizHP || '')}" inputmode="tel"></div>
       <div class="col-sm-6"><label class="form-label">Email usaha</label><input class="form-control" name="bizEmail" type="email" value="${esc(s.bizEmail || '')}"></div>
-      <div class="col-12"><label class="form-label">Alamat usaha</label><input class="form-control" name="bizAlamat" value="${esc(s.bizAlamat || '')}"></div></div></div></div>
+      <div class="col-12"><label class="form-label">Alamat usaha</label><input class="form-control" name="bizAlamat" value="${esc(s.bizAlamat || '')}"></div></div></div>${kartuKontakSA(s)}</div>
     <div class="col-lg-5"><div class="cardx pad-lg mb-4"><b class="fs-5 d-block mb-3">Logo</b><div class="d-flex gap-3 align-items-center mb-3"><span class="brand-logo" style="width:72px;height:72px;border-radius:20px">${s.logoUrl ? `<img src="${esc(s.logoUrl)}" alt="Logo">` : LOGO_SVG}</span><div class="small muted">PNG/JPG persegi, minimal 256×256 px. Tampil di sidebar, landing, dan invoice PDF.</div></div>${dropzone('logo', 'Unggah logo baru', 'image/*')}<button type="button" class="btn btn-soft w-100 mt-2" data-act="logoUpload"><i class="bi bi-upload"></i>Simpan logo</button></div>
       <div class="cardx pad-lg"><b class="fs-5 d-flex justify-content-between mb-3">Rekening pembayaran <button type="button" class="link-btn fs-6" data-act="bankAdd"><i class="bi bi-plus"></i> Tambah</button></b><div id="bankList">${(s.bankInfo || []).map(bankRow).join('')}</div><div class="form-text">Tampil di invoice & halaman pesanan customer.</div></div></div>
     <div class="col-12"><button class="btn btn-primary btn-lg" type="submit"><i class="bi bi-check2"></i>Simpan identitas</button></div></form>`;
@@ -3667,7 +3639,7 @@ function aPengaturan(el, p, re) {
         <div id="mjGabungNote" class="note-box mt-0 mb-3" style="${s.memberJasaGabung === true ? '' : 'display:none'}"><i class="bi bi-eye-slash"></i><div>Baris jasa titip disembunyikan. Harga barang yang dilihat member sudah termasuk jasa titip, jadi total tagihan dan pendapatan jasa tidak berubah.</div></div>
         <div id="mjRinciBox" style="${s.memberJasaGabung === true ? 'display:none' : ''}"><label class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" name="memberJasaRinci" ${s.memberJasaRinci === false ? '' : 'checked'}> Tampilkan rincian persen &amp; minimal jasa titip</label>
         <div class="row g-3 align-items-end"><div class="col-sm-6"><label class="form-label" for="mjLabel">Nama biaya di portal member</label><input class="form-control" id="mjLabel" name="memberJasaLabel" maxlength="40" value="${esc(s.memberJasaLabel || 'Jasa titip')}" placeholder="Jasa titip"></div>
-          <div class="col-sm-6"><div class="small muted mb-1">Pratinjau</div><div class="tint p-2 px-3 small" id="mjPrev"></div></div></div></div></div></div>
+          <div class="col-sm-6"><div class="small muted mb-1">Pratinjau</div><div class="tint p-2 px-3 small" id="mjPrev"></div></div></div></div>${toggleJasaKartu(s)}</div></div>
     <div class="col-xl-5"><div class="cardx pad-lg"><b class="fs-5 d-flex justify-content-between mb-3">Kurir domestik <button type="button" class="link-btn fs-6" data-act="kurirAdd"><i class="bi bi-plus"></i> Tambah</button></b><div id="kurirList">${(s.couriers || []).map(kurirRow).join('')}</div></div></div>
     <div class="col-12"><button class="btn btn-primary btn-lg" type="submit"><i class="bi bi-check2"></i>Simpan aturan</button></div></form>`;
   } else if (st.tab === 'qris') {
@@ -3716,7 +3688,9 @@ function bindIdentitas() {
   f.onsubmit = async e => {
     e.preventDefault(); const d = formData(f);
     const bankInfo = $$('#bankList .bank-row').map(r => ({ bank: r.querySelector('[data-b=bank]').value.trim(), noRek: r.querySelector('[data-b=noRek]').value.trim(), atasNama: r.querySelector('[data-b=atasNama]').value.trim() })).filter(x => x.bank);
-    const res = await mutate('settings.simpan', { values: { appName: d.appName, tagline: d.tagline, primaryColor: d.primaryColor, bizHP: d.bizHP, bizEmail: d.bizEmail, bizAlamat: d.bizAlamat, bankInfo } }, { btn: f.querySelector('[type=submit]'), rerenderView: false });
+    const values = { appName: d.appName, tagline: d.tagline, primaryColor: d.primaryColor, bizHP: d.bizHP, bizEmail: d.bizEmail, bizAlamat: d.bizAlamat, bankInfo };
+    if (f.bizIG) { values.bizIG = d.bizIG; values.waGrupLink = d.waGrupLink; } // v1.4.1: hanya Super Admin
+    const res = await mutate('settings.simpan', { values }, { btn: f.querySelector('[type=submit]'), rerenderView: false });
     if (res.success) { S.settings = res.data.settings; Object.keys(S.boot.settings).forEach(k => { if (S.settings[k] !== undefined) S.boot.settings[k] = S.settings[k]; }); renderShellChrome(); delete $('#v-home').dataset.ready; }
     else applyBrand();
   };
@@ -3742,8 +3716,10 @@ function bindJasa() {
     e.preventDefault();
     const rules = $$('tr[data-neg]', f).map(r => ({ negara: r.dataset.neg, tipe: r.querySelector('[data-r=tipe]').value, nilai: angkaJasa(r.querySelector('[data-r=nilai]').value, r.querySelector('[data-r=tipe]').value), minimal: toNum(r.querySelector('[data-r=minimal]').value) }));
     const couriers = $$('#kurirList .kurir-row').map(r => ({ nama: r.querySelector('[data-k=nama]').value.trim(), harga: toNum(r.querySelector('[data-k=harga]').value), estimasi: r.querySelector('[data-k=estimasi]').value.trim() })).filter(x => x.nama);
-    const res = await mutate('settings.simpan', { values: { jastipRules: rules, couriers, jatuhTempoHari: Number(f.jatuhTempoHari.value) || 3, memberJasaRinci: f.memberJasaRinci.checked, memberJasaLabel: f.memberJasaLabel.value.trim(), memberJasaGabung: !f.memberJasaTampil.checked } }, { btn: f.querySelector('[type=submit]'), rerenderView: false });
-    if (res.success) { S.settings = res.data.settings; Object.assign(S.boot.settings, { jastipRules: S.settings.jastipRules, couriers: S.settings.couriers, jatuhTempoHari: S.settings.jatuhTempoHari, memberJasaRinci: S.settings.memberJasaRinci, memberJasaLabel: S.settings.memberJasaLabel, memberJasaGabung: S.settings.memberJasaGabung }); ['home', 'katalog', 'keranjang'].forEach(v => { const x = $('#v-' + v); if (x) delete x.dataset.ready; }); }
+    const values = { jastipRules: rules, couriers, jatuhTempoHari: Number(f.jatuhTempoHari.value) || 3, memberJasaRinci: f.memberJasaRinci.checked, memberJasaLabel: f.memberJasaLabel.value.trim(), memberJasaGabung: !f.memberJasaTampil.checked };
+    if (f.katalogJasaKartu) values.katalogJasaKartu = f.katalogJasaKartu.checked; // v1.4.1: Super Admin & Owner
+    const res = await mutate('settings.simpan', { values }, { btn: f.querySelector('[type=submit]'), rerenderView: false });
+    if (res.success) { S.settings = res.data.settings; Object.assign(S.boot.settings, { jastipRules: S.settings.jastipRules, couriers: S.settings.couriers, jatuhTempoHari: S.settings.jatuhTempoHari, memberJasaRinci: S.settings.memberJasaRinci, memberJasaLabel: S.settings.memberJasaLabel, memberJasaGabung: S.settings.memberJasaGabung, katalogJasaKartu: S.settings.katalogJasaKartu === true }); ['home', 'katalog', 'keranjang'].forEach(v => { const x = $('#v-' + v); if (x) delete x.dataset.ready; }); }
   };
 }
 async function loadSecret() {
@@ -4950,8 +4926,7 @@ async function gambarInvoiceJpg(o) {
   tulis('CARA PEMBAYARAN', P, ly + 22, F(800, 17), MUTED); ly += 56;
   bankAktif().slice(0, 4).forEach(b => { tulis(b.bank + '  ' + fmtNomor(b.noRek), P, ly, F(800, 22), INK); tulis('a.n. ' + String(b.atasNama || '').slice(0, 34), P, ly + 28, F(500, 19), MUTED); ly += 66; });
   ewalletAktif().slice(0, 4).forEach(e => { tulis(e.nama + '  ' + fmtNomor(e.nomor), P, ly, F(800, 22), INK); tulis('a.n. ' + String(e.atasNama || '').slice(0, 34), P, ly + 28, F(500, 19), MUTED); ly += 66; });
-  if (qrisAktif().length) { bungkus('QRIS: buka menu Pesanan Saya → Bayar sekarang, nominal terisi otomatis.', LW, F(600, 20), 3).forEach(l => { tulis(l, P, ly, F(600, 20), warna); ly += 28; }); ly += 10; }
-  bungkus('Setelah membayar, unggah bukti di menu Pesanan Saya agar segera diverifikasi.', LW, F(500, 19), 3).forEach(l => { tulis(l, P, ly, F(500, 19), MUTED); ly += 27; });
+  bungkus('Setelah membayar, kirim bukti transfer ke WhatsApp admin agar segera diverifikasi.', LW, F(500, 19), 3).forEach(l => { tulis(l, P, ly, F(500, 19), MUTED); ly += 27; });
   y = Math.max(y + TH, ly) + 50;
 
   // ── Kaki ──
@@ -5978,7 +5953,7 @@ function pilihVarianHtml(it) {
 function hargaDetailHtml(it) {
   const v = varianTerpilih(it);
   const h = hitungBarang(it, v, 1);
-  return `<div class="price fs-3">${rp(jasaGabung() ? h.subtotal : h.hargaJual)}</div><div class="small muted">${teksJasaKartu(h.jasaIDR)}${v ? ' · ' + esc(labelVarian(v)) : ''}</div>`;
+  return `<div class="price fs-3">${rp(jasaGabung() ? h.subtotal : h.hargaJual)}</div><div class="small muted">${[jasaKartuTampil() ? teksJasaKartu(h.jasaIDR) : '', v ? esc(labelVarian(v)) : ''].filter(Boolean).join(' · ')}</div>`;
 }
 ACT.varPilih = b => {
   const it = (S.boot.items || []).find(x => x.ID === b.dataset.id); if (!it) return;
@@ -6307,7 +6282,7 @@ async function editorFotoProfil(file) {
 //   berikutnya tampil instan, lalu diperbarui di latar (stale-while-revalidate).
 // Semua fungsi memakai deklarasi function (ter-hoist): bootSalinan() dipanggil saat state S dibuat.
 // ════════════════════════════════════════════════════════
-function versiWeb() { return '1.4.0'; }
+function versiWeb() { return '1.4.1'; }
 
 /** Periksa js/config.js. URL /exec Apps Script bukan rahasia (keamanan dijaga token sesi + cek peran di server). */
 function statusKonfig() {
@@ -6410,3 +6385,91 @@ function layarBootGagal(res) {
       'Pemilik aplikasi: pastikan <code>GAS_URL</code> di <code>js/config.js</code> adalah URL <code>/exec</code> terbaru dan Web App di-deploy dengan <b>Jalankan sebagai: Saya</b> serta akses <b>Siapa saja</b>.']
   });
 }
+
+// ════════════════════════════════════════════════════════
+// BAGIAN 43 (v1.4.1): HUBUNGI KAMI (INSTAGRAM & GRUP WHATSAPP), JASA DI KARTU KATALOG,
+//                     PILIH & HAPUS VOUCHER MASSAL
+// Semua deklarasi function (ter-hoist) — dipanggil dari modul sebelumnya.
+// ════════════════════════════════════════════════════════
+const POLA_IG_WEB = /^[A-Za-z0-9._]{1,30}$/;
+const POLA_WA_GRUP_WEB = /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{10,40}$/;
+
+// ── Hubungi Kami (landing) ──
+function kontakIgHtml(s) {
+  const ig = String((s || {}).bizIG || '');
+  if (!POLA_IG_WEB.test(ig)) return '';
+  return `<a href="https://www.instagram.com/${encodeURIComponent(ig)}/" target="_blank" rel="noopener" class="kontak-ig"><i class="bi bi-instagram me-2" aria-hidden="true"></i>@${esc(ig)}</a>`;
+}
+function kontakGrupWaHtml(s) {
+  const l = String((s || {}).waGrupLink || '');
+  if (!POLA_WA_GRUP_WEB.test(l)) return ''; // hanya tautan undangan grup resmi yang ditampilkan
+  return `<a href="${esc(l)}" target="_blank" rel="noopener" class="btn-grup-wa"><i class="bi bi-people-fill" aria-hidden="true"></i>Gabung Grup WhatsApp</a>`;
+}
+/** Kartu pengaturan khusus Super Admin di tab Identitas. */
+function kartuKontakSA(s) {
+  if (!S.me || S.me.role !== 'superadmin') return '';
+  return `<div class="cardx pad-lg mt-4"><b class="fs-5 d-block mb-1">Hubungi Kami di landing page</b><p class="muted small mb-3">Tampil di bagian <b>Hubungi Kami</b>. Hanya Super Admin yang dapat mengubah. Kosongkan untuk menyembunyikan.</p><div class="row g-3">
+    <div class="col-sm-6"><label class="form-label" for="sIG">Nama Instagram</label><div class="input-group"><span class="input-group-text"><i class="bi bi-instagram" aria-hidden="true"></i>&nbsp;@</span><input class="form-control" id="sIG" name="bizIG" value="${esc(s.bizIG || '')}" maxlength="80" placeholder="namausaha" autocomplete="off" autocapitalize="off" spellcheck="false"></div><div class="form-text">Boleh tempel tautan profil Instagram.</div></div>
+    <div class="col-sm-6"><label class="form-label" for="sWaGrup">Tautan grup WhatsApp</label><input class="form-control" id="sWaGrup" name="waGrupLink" type="url" inputmode="url" value="${esc(s.waGrupLink || '')}" maxlength="120" placeholder="https://chat.whatsapp.com/…" autocomplete="off"><div class="form-text">Di WhatsApp: Info grup → Undang lewat tautan → Salin tautan.</div></div>
+  </div></div>`;
+}
+
+// ── Baris "per pcs · termasuk jasa titip Rp …" di kartu katalog (Super Admin & Owner; bawaan disembunyikan) ──
+function jasaKartuTampil() { return sett().katalogJasaKartu === true; }
+function bolehAturJasaKartu() { return !!S.me && ['superadmin', 'owner'].includes(S.me.role); }
+function toggleJasaKartu(s) {
+  if (!bolehAturJasaKartu()) return '';
+  return `<div class="pt-3 mt-3" style="border-top:1px dashed var(--border)"><label class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" name="katalogJasaKartu" ${s.katalogJasaKartu === true ? 'checked' : ''}> <b>Tampilkan "per pcs · jasa titip Rp …" di kartu katalog</b></label>
+    <div class="form-text">Berlaku untuk semua barang di katalog dan detail barang. Bawaan: disembunyikan. Hanya Super Admin & Owner yang dapat mengubah.</div></div>`;
+}
+
+// ── Voucher: pilih satu / pilih semua → hapus sekaligus ──
+function vcPilihSet() { const st = S.ui.vc; if (!Array.isArray(st.pilih)) st.pilih = []; return st.pilih; }
+function vcBisaHapus(v) { return statusVoucher(v) !== 'Terpakai'; }
+/** Bilah di atas tabel voucher: centang "Pilih semua", jumlah terpilih, tombol hapus. */
+function vcBilahPilih(list) {
+  const bisa = list.filter(vcBisaHapus);
+  if (!bisa.length) return '';
+  const pil = vcPilihSet().filter(id => bisa.some(v => v.ID === id));
+  S.ui.vc.pilih = pil;
+  const semua = pil.length === bisa.length;
+  return `<div class="vc-bilah" id="vcBilah"><label class="form-check mb-0 d-inline-flex align-items-center gap-2"><input class="form-check-input mt-0" type="checkbox" id="vcSemua" data-act="vcPilihSemua" ${semua ? 'checked' : ''} aria-label="Pilih semua voucher"><span>Pilih semua <span class="muted">(${num(bisa.length)})</span></span></label>
+    <span class="vc-bilah-n" id="vcPilihN" ${pil.length ? '' : 'hidden'}>${num(pil.length)} dipilih</span>
+    <span class="grow"></span>
+    <button class="btn btn-light btn-sm" type="button" data-act="vcPilihBatal" id="vcBatalPilih" ${pil.length ? '' : 'hidden'}>Batal pilih</button>
+    <button class="btn btn-danger-soft btn-sm" type="button" data-act="vcHapusPilih" id="vcHapusPilih" ${pil.length ? '' : 'disabled'}><i class="bi bi-trash" aria-hidden="true"></i>Hapus terpilih</button></div>`;
+}
+function vcCekBaris(v) {
+  if (!vcBisaHapus(v)) return '<td class="cek"></td>';
+  return `<td class="cek"><input class="form-check-input" type="checkbox" data-act="vcPilih" data-id="${v.ID}" ${vcPilihSet().includes(v.ID) ? 'checked' : ''} aria-label="Pilih voucher ${esc(v.Kode)}"></td>`;
+}
+/** Perbarui bilah & centang di tempat (tanpa render ulang tabel). */
+function vcSegarPilih() {
+  const pil = vcPilihSet();
+  const cek = $$('[data-act=vcPilih]');
+  cek.forEach(c => { c.checked = pil.includes(c.dataset.id); c.closest('tr')?.classList.toggle('dipilih', c.checked); });
+  const n = pil.length;
+  const semua = $('#vcSemua'); if (semua) { semua.checked = cek.length > 0 && cek.every(c => c.checked); semua.indeterminate = n > 0 && !semua.checked; }
+  const lbl = $('#vcPilihN'); if (lbl) { lbl.hidden = !n; lbl.textContent = num(n) + ' dipilih'; }
+  const bt = $('#vcBatalPilih'); if (bt) bt.hidden = !n;
+  const h = $('#vcHapusPilih'); if (h) h.disabled = !n;
+}
+ACT.vcPilih = b => {
+  const pil = vcPilihSet(), id = b.dataset.id;
+  if (b.checked) { if (!pil.includes(id)) pil.push(id); } else S.ui.vc.pilih = pil.filter(x => x !== id);
+  vcSegarPilih();
+};
+ACT.vcPilihSemua = b => {
+  const ids = $$('[data-act=vcPilih]').map(c => c.dataset.id);
+  S.ui.vc.pilih = b.checked ? ids : [];
+  vcSegarPilih();
+};
+ACT.vcPilihBatal = () => { S.ui.vc.pilih = []; vcSegarPilih(); };
+ACT.vcHapusPilih = async b => {
+  const ids = vcPilihSet().slice();
+  if (!ids.length) return;
+  const kode = (S.d.vouchers || []).filter(v => ids.includes(v.ID)).map(v => v.Kode);
+  if (!(await confirmDlg({ title: `Hapus ${num(ids.length)} voucher?`, text: `${kode.slice(0, 6).join(', ')}${kode.length > 6 ? ` dan ${num(kode.length - 6)} lainnya` : ''}. Kode yang dihapus tidak bisa dipakai lagi.`, ok: 'Hapus semua', danger: true }))) return;
+  S.ui.vc.pilih = [];
+  await mutate('voucher.hapus', { ids }, { btn: b, busyLabel: 'Menghapus…', optimistic: () => ids.forEach(id => removeLocal('vouchers', id)) });
+};

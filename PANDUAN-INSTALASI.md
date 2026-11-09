@@ -1,6 +1,6 @@
 # Jastica — Panduan Instalasi & Deployment (Apps Script + GitHub Pages)
 
-Versi **1.4.0**. Jastica adalah aplikasi web satu halaman (SPA) untuk jasa titip Jakarta, Malaysia, Singapura, Jepang dan Thailand: pesanan, konversi kurs ke IDR, jasa titip, dompet kas, pembayaran (transfer, QRIS & e-wallet), invoice PDF dan gambar JPG ke WhatsApp, pengingat tagihan, poin & voucher member, katalog dengan nama barang otomatis dari foto, keamanan masuk (OTP pengurus, member masuk dengan PIN 6 digit, keluar otomatis), laporan, harga jual katalog dan rincian keuntungan, sisa stok, ulasan member, impor barang dari Excel, serta galeri foto barang, varian warna/ukuran/berat, dan jasa titip per barang.
+Versi **1.4.1**. Jastica adalah aplikasi web satu halaman (SPA) untuk jasa titip Jakarta, Malaysia, Singapura, Jepang dan Thailand: pesanan, konversi kurs ke IDR, jasa titip, dompet kas, pembayaran (transfer, QRIS & e-wallet), invoice PDF dan gambar JPG ke WhatsApp, pengingat tagihan, poin & voucher member, katalog dengan nama barang otomatis dari foto, keamanan masuk (OTP pengurus, member masuk dengan PIN 6 digit, keluar otomatis), laporan, harga jual katalog dan rincian keuntungan, sisa stok, ulasan member, impor barang dari Excel, serta galeri foto barang, varian warna/ukuran/berat, dan jasa titip per barang.
 
 ## Arsitektur (mulai 1.4)
 
@@ -25,9 +25,14 @@ https://USERNAME.github.io/NAMA-REPO/               https://script.google.com/ma
 
 ---
 
-## 0. Memperbarui dari versi sebelumnya (1.0.x sampai 1.3.5)
+## 0. Memperbarui dari versi sebelumnya (1.0.x sampai 1.4.0)
 
 Lewati bagian ini jika memasang dari nol.
+
+**Dari 1.4.0 (sudah di GitHub Pages).**
+1. Apps Script: ganti isi file **`Kode`** dengan `Kode.gs` baru → **Terapkan → Kelola deployment → ✏️ Edit → Versi: Versi baru → Terapkan**. URL `/exec` tetap sama.
+2. Frontend: ekstrak `jastica-web-update.zip` ke folder proyek Anda (misalnya `Documents\jastica-web`) dan pilih **timpa/replace**. Paket pembaruan **tidak berisi `js/config.js`**, jadi `GAS_URL` Anda tetap aman.
+3. Dari folder itu: `git add .` → `git commit -m "Jastica 1.4.1"` → `git push`. Tunggu 1–2 menit, lalu **Ctrl+Shift+R**.
 
 **Pindah ke GitHub Pages (dari 1.3.x atau lebih lama), tanpa aplikasi berhenti.** Database, akun, dan semua data tetap sama; yang berubah hanya tempat tampilan aplikasi dibuka. Setiap deployment Apps Script terkunci pada versinya sendiri, jadi alamat lama tetap melayani aplikasi lama sampai alamat GitHub Pages siap.
 
@@ -37,7 +42,7 @@ Lewati bagian ini jika memasang dari nol.
 4. Buka URL baru itu di browser. Hasil yang benar berupa teks JSON yang memuat `"API Jastica aktif"`.
 5. Pasang frontend di GitHub Pages dengan URL baru tadi (bagian 3.2), lalu uji: masuk sebagai pengurus dan sebagai member.
 6. Bagikan alamat `https://USERNAME.github.io/NAMA-REPO/` ke member dan pengurus. Karena alamatnya berubah, setiap orang perlu **masuk sekali lagi** di alamat baru (sesi lama tidak terbawa). Data, PIN, dan kata sandi tidak berubah.
-7. Setelah semua pindah, nonaktifkan alamat lama: **Terapkan → Kelola deployment** → pilih deployment lama → **Arsipkan**. Jika aplikasi pernah ditanam di Blogger, ganti alamatnya (bagian 16).
+7. Setelah semua pindah, nonaktifkan alamat lama: **Terapkan → Kelola deployment** → pilih deployment lama → **Arsipkan**. Jika aplikasi pernah ditanam di Blogger, ganti alamatnya (bagian 17).
 
 **Perubahan database** terjadi otomatis saat permintaan pertama ke server. Data lama tidak diubah dan **tidak perlu** menjalankan `setupAppEnvironment` lagi:    - Dari 1.0.x: sheet **Vouchers** dan **PoinLog** ditambahkan, serta kolom baru di **Customers** dan **Orders**.
    - Dari 1.1.x: tidak ada sheet atau kolom baru untuk 1.2.
@@ -46,7 +51,7 @@ Lewati bagian ini jika memasang dari nol.
    - Dari 1.3.1: tidak ada sheet, kolom, baris, atau properti baru untuk 1.3.2.
    - Dari 1.3.2: kolom **HargaJual** ditambahkan otomatis di sheet **Items** dan **OrderItems**. Data lama tidak berubah: barang dan pesanan lama tetap memakai harga toko (margin Rp 0) sampai Anda mengisi harga jual.
    - Dari 1.3.3: sheet **Reviews** (ulasan), kolom **Stok** dan **StokSejak** di sheet **Items**, serta folder Drive **Foto Ulasan** dibuat otomatis. Barang lama tidak dibatasi stoknya sampai Anda mengisi sisa stok.
-   - Dari 1.3.5: tidak ada sheet, kolom, atau properti baru untuk 1.4.0.
+   - Dari 1.3.5 dan 1.4.0: tidak ada sheet, kolom, atau properti baru untuk 1.4.x.
    - Dari 1.3.4: kolom **PinHash**, **PinSalt**, **Foto** di sheet **Users** serta **FotoLain**, **Varian**, **JasaItem** di sheet **Items** dibuat otomatis. Member lama tetap bisa masuk: PIN masuk cepat lama langsung menjadi PIN akun, atau masuk sekali dengan kata sandi lama lalu wajib membuat PIN 6 angka (lihat bagian 13).
 4. Hal yang terjadi otomatis saat pembaruan:
    - Kurir **"Ambil di tempat"** dihapus dari daftar kurir, karena sekarang sudah ada pilihan **Ambil sendiri (pick up)** bawaan. Kurir lain tidak berubah.
@@ -75,7 +80,7 @@ Jangan mengganti nama sheet `Vouchers`, `PoinLog`, dan `PinPerangkat` di spreads
 
 | File di Apps Script | Nomor baris | Isi baris itu |
 |---|---|---|
-| `Kode` | 4226 | `}` |
+| `Kode` | 4293 | `}` |
 
 Jika angkanya berbeda, salinan belum lengkap. Ulangi Ctrl+A → Ctrl+V.
 
@@ -168,7 +173,7 @@ git push -u origin main
 
 **h. Aktifkan GitHub Pages.** Di repository: **Settings → Pages** → *Source*: **Deploy from a branch** → *Branch*: **main** dan **/ (root)** → **Save**. Centang **Enforce HTTPS** (wajib untuk kamera). Tunggu 1–2 menit sampai muncul *"Your site is live at https://USERNAME.github.io/NAMA-REPO/"*.
 
-**i. Buka situsnya.** Halaman beranda Jastica tampil dan memuat katalog. Bila muncul layar penjelasan (misalnya "Konfigurasi belum lengkap"), ikuti langkah di layar itu atau lihat bagian 19.
+**i. Buka situsnya.** Halaman beranda Jastica tampil dan memuat katalog. Bila muncul layar penjelasan (misalnya "Konfigurasi belum lengkap"), ikuti langkah di layar itu atau lihat bagian 20.
 
 **Saat frontend diubah** (misalnya mengganti `GAS_URL` atau memasang versi baru): salin file baru ke folder yang sama, lalu dari folder itu:
 
@@ -246,7 +251,7 @@ Member juga memilih **Dikirim kurir** atau **Ambil sendiri** saat checkout; seja
 - **Ikuti trip aktif**: hanya negara dari trip berstatus **Aktif** di tab Jadwal trip. Jika tidak ada trip aktif, semua negara ditampilkan.
 - **Pilih manual**: centang negara yang dibuka, misalnya hanya **Jakarta** saat Owner sedang di Jakarta.
 
-Pembatasan ini berlaku untuk katalog, request barang khusus, dan kalkulator di portal member, dan juga diperiksa di server. Panel admin tetap melihat semua negara.
+Pembatasan ini berlaku untuk katalog dan kalkulator di portal member (request barang khusus dihapus di 1.4.1), dan juga diperiksa di server. Panel admin tetap melihat semua negara.
 
 **Poin member.** Menu **Voucher & Poin → Poin member** (Owner dan Super Admin):
 - Bawaan: setiap belanja **Rp 1.000 = 1 poin**, 1 poin bernilai **Rp 1** saat ditukar, minimal **50.000 poin** terkumpul sebelum bisa ditukar. Ketiga angka dan saklar *Sistem poin aktif* bisa diubah.
@@ -262,7 +267,7 @@ Pembatasan ini berlaku untuk katalog, request barang khusus, dan kalkulator di p
 
 ## 7. Fitur baru versi 1.2
 
-**Akses tamu & tema.** Pengunjung yang belum masuk tetap bisa melihat landing, katalog, jadwal trip, dan kalkulator, tetapi tombol **Titip**, **Keranjang**, dan **Request barang khusus** baru muncul setelah member masuk. Tombol bulan/matahari di bilah atas landing dan portal member mengganti tampilan **gelap/terang**; pilihan tersimpan di perangkat itu.
+**Akses tamu & tema.** Pengunjung yang belum masuk tetap bisa melihat landing, katalog, jadwal trip, dan kalkulator, tetapi tombol **Titip** dan **Keranjang** baru muncul setelah member masuk. Tombol bulan/matahari di bilah atas landing dan portal member mengganti tampilan **gelap/terang**; pilihan tersimpan di perangkat itu.
 
 **Pick up bawaan.** Di kalkulator landing dan checkout member, pilihan bawaan sekarang **Ambil sendiri (pick up) · Rp 0**. Member tetap bisa memilih kurir.
 
@@ -278,7 +283,7 @@ Pembatasan ini berlaku untuk katalog, request barang khusus, dan kalkulator di p
 2. Pilih foto atau screenshot **QRIS statis** usaha (dari stiker merchant atau aplikasi bank/e-wallet). Aplikasi membaca kodenya dan memeriksa keasliannya; nama merchant tampil bila valid. Bila gambar tidak terbaca, tempel teks QRIS di kolom *Gambar tidak terbaca?*.
 3. Simpan. Bisa menambah sampai 6 QRIS dan menyembunyikan sementara lewat saklar.
 
-Di sisi member: **Pesanan Saya → Bayar sekarang → QRIS** (sejak 1.3; sebelumnya tombol *Bayar QRIS*) menampilkan QR dengan **nominal sisa tagihan otomatis** dan nama merchant. Member yang membayar dari HP yang sama bisa menekan **Simpan gambar QR**, lalu memilih gambar itu dari galeri di menu scan aplikasi bank. Setelah membayar, member menekan **Saya sudah bayar** dan mengunggah bukti (metode QRIS terisi otomatis). Verifikasi tetap di **Pembayaran & Mutasi** seperti biasa.
+*(Dihapus di versi 1.4.1: tombol Bayar sekarang tidak lagi ada di halaman Lacak Pesanan member; lihat bagian 14.)* Di sisi member: **Pesanan Saya → Bayar sekarang → QRIS** (sejak 1.3; sebelumnya tombol *Bayar QRIS*) menampilkan QR dengan **nominal sisa tagihan otomatis** dan nama merchant. Member yang membayar dari HP yang sama bisa menekan **Simpan gambar QR**, lalu memilih gambar itu dari galeri di menu scan aplikasi bank. Setelah membayar, member menekan **Saya sudah bayar** dan mengunggah bukti (metode QRIS terisi otomatis). Verifikasi tetap di **Pembayaran & Mutasi** seperti biasa.
 
 > QRIS di sini tidak memakai payment gateway, jadi pembayaran **tidak terkonfirmasi otomatis**. Cocokkan dengan mutasi rekening atau aplikasi merchant sebelum verifikasi. Hampir semua aplikasi bank dan e-wallet langsung mengisi nominal dari QR; bila ada aplikasi yang meminta nominal, member mengetik nominal yang tertera.
 
@@ -314,7 +319,7 @@ Bila kunci belum dipasang atau foto tidak dikenali, pop-up tetap terbuka dengan 
 
 **Foto profil member.** **Akun Saya** → ikon kamera di avatar (atau **Tambah foto profil**) → pilih foto → pratinjau → **Gunakan foto ini**. Foto dipotong persegi dari tengah (512×512), disimpan di folder *Aset Aplikasi*, dan tampil di Akun serta menu akun di bilah atas. Foto lama dibuang saat diganti. **Hapus** mengembalikan avatar inisial.
 
-**Bayar sekarang: transfer, QRIS, atau e-wallet.**
+**Bayar sekarang: transfer, QRIS, atau e-wallet.** *(Dihapus dari halaman Lacak Pesanan member di versi 1.4.1; member membayar ke rekening/e-wallet yang tertera di invoice lalu mengirim bukti lewat WhatsApp.)*
 1. Admin (Super Admin & Owner, izin *Kelola QRIS pembayaran*): **Pengaturan → QRIS & e-wallet** → kartu *E-wallet untuk pembayaran member* → **Tambah e-wallet** → isi nama (GoPay, DANA, OVO, ShopeePay, …), nomor, dan atas nama di pop-up → **Simpan e-wallet**. Sejak 1.3.1 setiap e-wallet langsung tersimpan dan tampil sebagai kartu; di kartu ada saklar untuk menyembunyikan sementara, tombol ubah (pensil), dan hapus (maksimal 8 e-wallet).
 2. Member: **Pesanan Saya → Bayar sekarang** membuka pilihan **Transfer** (rekening + tombol salin), **QRIS** (QR dengan nominal otomatis), dan **E-wallet** (nomor + tombol salin). Nominal sisa tagihan bisa disalin. Hanya metode yang sudah diatur admin yang muncul.
 3. **Saya sudah bayar** membuka form bukti dengan metode terisi (misalnya *GoPay*); metode tetap bisa diganti. Verifikasi tetap di **Pembayaran & Mutasi**.
@@ -390,7 +395,7 @@ Pesanan yang sudah diproses (*Dibeli*/*Dikirim*) atau sudah ada pembayarannya te
 | Pengaturan → Jasa titip & kurir | Nilai jasa (Rp per pcs / flat), minimal jasa, harga kurir |
 | Katalog & Trip, Pembelian per Negara | Harga di toko untuk barang Jakarta (IDR) |
 | Kalkulator Kurs | Nominal saat arah IDR → valas; harga di kalkulator jastip (IDR) |
-| Portal member | Jumlah di upload bukti bayar, harga request barang (IDR), kalkulator di landing page (IDR) |
+| Portal member | Kalkulator di landing page (IDR) |
 
 Nilai persen (misalnya jasa 7,5%) dan harga dalam mata uang asing (misalnya SGD 12,90) tetap boleh desimal. Saat tipe diganti ke persen atau negara diganti ke mata uang asing, titik pemisah otomatis dilepas.
 
@@ -413,7 +418,6 @@ Kotak dan kolom harga jual hanya tampil untuk Super Admin dan Owner. Pengurus la
 - Di keranjang, invoice di **Pesanan Saya**, PDF invoice, dan gambar invoice JPG, barang yang punya harga jual hanya menampilkan harga jual; kolom harga asli dan kurs berisi "-".
 - Harga toko barang yang punya harga jual juga tidak dikirim ke browser tamu dan member.
 - Jasa titip persen dihitung dari harga jual, yaitu harga yang dibayar member.
-- Request barang khusus dari member tetap memakai harga toko yang diisi member sendiri.
 
 **Pesanan.** Harga jual dikunci di setiap baris pesanan saat pesanan dibuat. Mengubah harga jual di katalog hanya berlaku untuk pesanan baru; pesanan lama tetap memakai harga yang sudah disepakati. Di **Form Pesanan**, kolom *Harga beli IDR* tetap menampilkan harga pokok dengan keterangan "jual Rp …", dan **Estimasi keuntungan** kini dihitung dari margin + jasa titip − potongan. Rincian pesanan (panel samping) menampilkan baris **Margin harga jual** bila ada.
 
@@ -506,11 +510,35 @@ Catatan impor:
 **Jasa titip per barang (Super Admin & Owner).**
 - Isi **Jasa titip per pcs** di kotak *Varian & jasa titip*. Kosongkan untuk mengikuti aturan jasa titip negara (Pengaturan → Jasa titip & kurir).
 - Tabel **Barang katalog** punya kolom **Jasa titip** per barang.
-- Kartu katalog member menampilkan "per pcs · jasa titip Rp …" (atau "termasuk jasa titip Rp …" bila jasa digabung ke harga).
+- Kartu katalog dapat menampilkan "per pcs · jasa titip Rp …" (atau "termasuk jasa titip Rp …" bila jasa digabung ke harga). Mulai 1.4.1 baris ini bawaan disembunyikan; Super Admin & Owner menyalakannya di Pengaturan (bagian 14).
 
 **Tabel Barang katalog lebih rapi.** Foto semua barang berukuran sama (56×56), utuh, dan teks keterangan barang sejajar di tengah. Di bawah nama tampil kategori, jumlah varian, dan jumlah foto.
 
-## 14. Script Properties (Setelan proyek → Properti skrip)
+## 14. Fitur baru versi 1.4.1
+
+**Hubungi Kami: Instagram & Gabung Grup WhatsApp.** Super Admin mengisinya di **Pengaturan → Identitas & rekening → Hubungi Kami di landing page**:
+- **Nama Instagram**: ketik `namausaha`, `@namausaha`, atau tempel tautan profil. Tampil di bagian Hubungi Kami dengan ikon Instagram dan membuka profil Anda.
+- **Tautan grup WhatsApp**: di WhatsApp buka grup → **Info grup → Undang lewat tautan → Salin tautan**, lalu tempel (`https://chat.whatsapp.com/…`). Tampil sebagai tombol hijau **Gabung Grup WhatsApp**. Tautan lain ditolak demi keamanan.
+- Kosongkan isian untuk menyembunyikan. Hanya Super Admin yang melihat dan mengubah kedua isian ini.
+
+**Request barang di luar katalog dihapus.** Kartu *Request barang di luar katalog* di keranjang, tombol *Request barang khusus* di katalog, dan tombol *Titip barang ini* di kalkulator sudah tidak ada. Member hanya menitip barang dari katalog. Pengurus tetap bisa menambah barang di luar katalog lewat **Form Pesanan**.
+
+**Lacak pesanan member.**
+- Tab berurutan: **Semua**, **Belum Bayar** (terbuka pertama), **Dibeli**, **Dikirim**, **Selesai**. *Belum Bayar* berisi pesanan yang masih punya sisa tagihan.
+- Tombol **Cetak**, **Bayar sekarang**, dan **Upload bukti bayar** dihapus. Kini ada tiga tombol sejajar dan sama lebar: **Bantuan** (WhatsApp admin berisi nomor pesanan), **Unduh Invoice**, dan **Batalkan pesanan** (selama pesanan masih *Baru* dan belum dibayar).
+- **Unduh Invoice** membuka PDF invoice resmi. Bila admin belum menerbitkan invoice, rincian pesanan dibuka di jendela cetak: pilih **Simpan sebagai PDF**.
+- Member membayar ke rekening/e-wallet yang tertera di invoice, lalu mengirim bukti lewat WhatsApp. Pengurus mencatatnya di **Pembayaran** seperti biasa. Kalimat petunjuk bawaan di invoice PDF, gambar invoice, dan template pesan ikut disesuaikan. Template WA/email yang pernah Anda ubah sendiri tidak diubah otomatis, jadi periksa **Pengaturan → Template** bila isinya masih menyebut menu Pesanan Saya.
+
+**Kartu katalog.**
+- Urutan isi kartu: foto → **negara** + label **Terlaris**/**Populer** (sejajar, kotak sama besar) → **nama barang** → **kategori** → terjual/rating → harga.
+- Barang Terlaris lalu Populer tetap tampil paling atas.
+- Baris **"per pcs · termasuk jasa titip Rp …"** kini **disembunyikan** untuk semua barang. Super Admin & Owner dapat menyalakannya di **Pengaturan → Jasa titip & kurir → Tampilkan "per pcs · jasa titip Rp …" di kartu katalog** (berlaku juga di detail barang).
+
+**Dompet & saldo.** Tombol pensil di kartu dompet kini bisa diklik (sebelumnya tertutup lingkaran hiasan), sehingga nama, nomor, atas nama, warna, dan status dompet bisa diubah.
+
+**Voucher: pilih satu atau pilih semua.** Di **Voucher & Poin → Voucher** ada kotak centang di setiap baris dan **Pilih semua** di atas tabel (mengikuti filter & pencarian yang aktif). Setelah memilih, tekan **Hapus terpilih**. Voucher yang sudah dipakai tidak bisa dipilih agar riwayat pesanan tetap utuh. Penghapusan massal tercatat di Audit Log.
+
+## 15. Script Properties (Setelan proyek → Properti skrip)
 
 Semua rahasia hanya disimpan di sini, tidak di kode, Sheets, atau browser.
 
@@ -530,7 +558,7 @@ Versi 1.3 sampai 1.3.5 tidak menambah properti yang perlu Anda isi (1.3.4 hanya 
 
 Siapa pun yang punya akses **edit** ke proyek Apps Script bisa melihat Script Properties, jadi jangan menambah editor sembarangan.
 
-## 15. Fungsi pemeliharaan (jalankan dari editor)
+## 16. Fungsi pemeliharaan (jalankan dari editor)
 
 Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjung web.
 
@@ -542,7 +570,7 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 | `pasangTrigger` | Pasang ulang 3 trigger jika terhapus. |
 | `matikanOtpPengurus` | Matikan OTP wajib pengurus bila kode tidak sampai dan Super Admin terkunci (bagian 8). |
 
-## 16. Alamat aplikasi, domain sendiri & Blogger (opsional)
+## 17. Alamat aplikasi, domain sendiri & Blogger (opsional)
 
 - Alamat aplikasi untuk member dan pengurus: `https://USERNAME.github.io/NAMA-REPO/`. Alamat `/exec` hanya untuk `GAS_URL`.
 - **Domain sendiri** (misalnya `jastip.namausaha.com`): di repository → **Settings → Pages → Custom domain**, lalu ikuti petunjuk DNS dari GitHub. `GAS_URL` tidak perlu diubah.
@@ -556,7 +584,7 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 </div>
 ```
 
-## 17. Cara kerja kecepatan
+## 18. Cara kerja kecepatan
 
 - Seluruh aplikasi dimuat sekali dari GitHub Pages, dan perpindahan menu murni di browser. Data awal (katalog, kurs, pengaturan publik) diambil dari API lalu disimpan di perangkat. Kunjungan berikutnya langsung tampil dari salinan itu, lalu diperbarui diam-diam bila server punya data lebih baru.
 - Semua panggilan ke server memakai satu alamat (`POST /exec`, `Content-Type: text/plain`), jadi browser tidak perlu permintaan izin CORS tambahan. Token sesi dikirim di badan permintaan, tidak pernah di URL.
@@ -565,7 +593,7 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 - Sinkronisasi hanya mengambil baris yang berubah sejak terakhir (sinkron selisih), dan buka ulang memakai salinan lokal di browser (bagian 9).
 - Saat masuk, data 45 hari terakhir dan tagihan belum lunas dimuat lebih dulu; data lama menyusul di latar tanpa menahan layar.
 
-## 18. Batasan yang perlu diketahui
+## 19. Batasan yang perlu diketahui
 
 - **Pengujian** dilakukan di simulator lokal (tiruan layanan GAS + Chromium), bukan di server Google asli: uji backend lulus semua dan alur E2E tanpa error, termasuk tiruan respons Fonnte (terhubung, terputus, token salah). Pada percobaan pertama di GAS, laporkan pesan error dari Log eksekusi bila ada.
 - **Pembayaran** (transfer, QRIS, maupun e-wallet) diverifikasi admin dari bukti bayar. Konfirmasi otomatis lewat payment gateway tidak termasuk.
@@ -583,7 +611,7 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 - **Salinan data di browser**: untuk buka ulang yang cepat, data terakhir disimpan di browser perangkat itu. Di komputer bersama, selalu tekan **Keluar** agar salinannya terhapus.
 - **Keluar otomatis** setelah 5 menit tanpa aktivitas berlaku juga saat mengisi formulir panjang tanpa mengetik; draf Form Pesanan tetap tersimpan otomatis di perangkat.
 
-## 19. Pemecahan masalah
+## 20. Pemecahan masalah
 
 **Layar penjelasan saat membuka aplikasi.** Aplikasi memeriksa dirinya sendiri dan menampilkan penyebabnya:
 

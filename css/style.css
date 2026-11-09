@@ -1212,3 +1212,50 @@ textarea.form-control { min-height: 96px; resize: vertical; }
 @media (prefers-reduced-motion: reduce) {
   .prod-media .prod-chips > .chip-kat.laris-badge, .galeri-dots span, .galeri-nav { animation: none !important; transition: none; }
 }
+
+/* ═══ v1.4.1 ═══ */
+/* Hubungi Kami: Instagram & tombol Gabung Grup WhatsApp */
+.pub-footer .btn-grup-wa { display: inline-flex; align-items: center; gap: 8px; margin-top: 6px; padding: 9px 14px; border-radius: 12px; background: #25D366; color: #08361C; font-weight: 800; box-shadow: 0 8px 20px -10px rgba(37, 211, 102, .8); }
+.pub-footer .btn-grup-wa:hover { background: #1FBE5B; color: #04220F; }
+.pub-footer .btn-grup-wa:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+/* Lacak pesanan member: Bantuan, Unduh Invoice, Batalkan pesanan sejajar & sama lebar */
+.ps-aksi { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; }
+.ps-aksi .btn { justify-content: center; min-width: 0; min-height: 44px; white-space: normal; line-height: 1.2; text-align: center; }
+@media (max-width: 575.98px) { .ps-aksi { gap: 6px; } .ps-aksi .btn { padding-left: 8px; padding-right: 8px; font-size: 13px; gap: 5px; } }
+
+/* Kartu katalog: negara + Terlaris/Populer di atas nama barang, kategori di bawah nama */
+.prod-info-baris { container-type: inline-size; min-width: 0; }
+.prod-chips-info { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; align-items: center; justify-content: start; max-width: 100%; vertical-align: top; }
+.prod-chips-info > .chip-kat { position: relative; inset: auto; box-sizing: border-box; height: 26px; min-width: 0; margin: 0; padding: 0 10px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  font-size: 11.5px; font-weight: 700; line-height: 1; letter-spacing: 0; text-transform: none; white-space: nowrap; overflow: hidden; }
+.prod-chips-info > .chip-kat .chip-txt { white-space: nowrap; }
+.prod-chips-info > .chip-kat.tag.flag { background: var(--surface-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--border); }
+.prod-chips-info > .chip-kat.hot-badge { right: auto; top: auto; }
+.prod-chips-info > .chip-kat.hot-badge .bi { font-size: 12px; }
+.prod-chips-info > .chip-kat.laris-badge { color: #fff; font-weight: 800; text-shadow: 0 1px 2px rgba(120, 20, 0, .45);
+  background: linear-gradient(110deg, #FF2E63 0%, #FF6A00 30%, #FFB800 50%, #FF6A00 70%, #FF2E63 100%); background-size: 220% 100%;
+  animation: larisAlir 2.6s linear infinite, larisNyala 1.6s ease-in-out infinite; }
+.prod-chips-info > .chip-kat.laris-badge .api { font-size: 12.5px; }
+.prod .prod-judul-blok { display: flex; flex-direction: column; gap: 3px; min-height: 64px; }
+.prod .prod-judul-blok h3 { min-height: 0; margin: 0; }
+@media (max-width: 767.98px) { .prod .prod-judul-blok { min-height: 58px; } }
+@container (max-width: 179.98px) {
+  .prod-chips-info { gap: 4px; }
+  .prod-chips-info > .chip-kat, .prod-chips-info > .chip-kat.laris-badge { height: 22px; padding: 0 7px; gap: 3px; font-size: 10.5px; }
+  .prod-chips-info > .chip-kat .fi, .prod-chips-info > .chip-kat .api, .prod-chips-info > .chip-kat .bi { display: none; }
+}
+@container (max-width: 129.98px) { .prod-chips-info > .chip-kat, .prod-chips-info > .chip-kat.laris-badge { height: 20px; padding: 0 5px; font-size: 9.5px; } }
+@container (max-width: 99.98px) { .prod-chips-info { grid-auto-flow: row; } }
+
+/* Dompet & saldo: lingkaran hiasan tidak lagi menutupi tombol pensil */
+.wallet-card::after { pointer-events: none; z-index: 0; }
+.wallet-card > * { position: relative; z-index: 1; }
+
+/* Voucher: pilih satu / pilih semua */
+.vc-bilah { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding: 10px 12px; margin-bottom: 10px; border-radius: 12px; background: var(--surface-2); }
+.vc-bilah .form-check-input, .tbl-vc .cek .form-check-input { width: 20px; height: 20px; cursor: pointer; }
+.vc-bilah-n { font-weight: 700; color: var(--primary-ink); }
+.tbl-vc th.cek, .tbl-vc td.cek { width: 44px; padding-right: 0; text-align: center; }
+.tbl-vc tr.dipilih td { background: var(--primary-subtle); }
+@media (prefers-reduced-motion: reduce) { .prod-chips-info > .chip-kat.laris-badge { animation: none !important; } }

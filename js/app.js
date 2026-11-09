@@ -955,8 +955,8 @@ function prodCard(it) {
   const sisa = sisaStok(it), laris = peringkatKatalog().laris.has(it.ID); // v1.3.4: terlaris, rating, terjual, sisa stok
   const hk = hargaKartu(it), adaVarian = varianOf(it).length > 0; // v1.3.5: galeri, varian, jasa titip per barang
   return `<article class="cardx prod card-hover ${it.Promo || laris ? 'is-hot' : ''} ${laris ? 'is-laris' : ''}">
-    <div class="prod-media">${galeriHtml(it, { act: 'prodDetail' })}${badgeBawah(it)}</div>
-    <div class="prod-info-baris"><div class="prod-chips-info">${chipNegara(it)}${badgeKatalog(it)}</div></div>
+    <div class="prod-media">${galeriHtml(it, { act: 'prodDetail' })}${(bk => bk ? `<div class="prod-chips prod-pojok">${bk}</div>` : '')(badgeKatalog(it))}${badgeBawah(it)}</div>
+    <div class="prod-info-baris"><div class="prod-chips-info">${chipNegara(it)}</div></div>
     <div class="prod-judul-blok"><h3 class="clamp-2"><button type="button" class="prod-judul" data-act="prodDetail" data-id="${it.ID}">${esc(it.Nama)}</button></h3>
     <div class="small muted prod-kat">${esc(it.Kategori || '')}</div></div>
     ${metaKatalog(it)}${varianRingkas(it)}
@@ -1013,7 +1013,7 @@ function vHome(el, p, re) {
     <div class="steps4">${[
       ['bi-search', 'Pilih barang', 'Pilih barang yang Anda mau dari katalog.'],
       ['bi-calculator', 'Lihat kalkulasi otomatis', 'Kurs live dan biaya jasa langsung terhitung. Total jelas sebelum konfirmasi.'],
-      ['bi-wallet2', 'Bayar & kami belanjakan', 'Transfer ke rekening resmi lalu kirim bukti ke WhatsApp admin. Shopper kami belanja di toko resmi.'],
+      ['bi-wallet2', 'Bayar & kami belanjakan', 'Transfer ke rekening resmi lalu unggah bukti. Shopper kami belanja di toko resmi.'],
       ['bi-box-seam', 'Terima di rumah', 'Barang dikirim kurir pilihan Anda. Invoice & status dikirim ke WhatsApp.']
     ].map((x, i) => `<div class="cardx step-card"><div class="n"><i class="bi ${x[0]}"></i></div><div class="small-caps mb-1">Langkah ${i + 1}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join('')}</div>
   </div></section>
@@ -1314,6 +1314,8 @@ function invoicePaper(o, opt = {}) {
   const s = sett();
   const items = itemsOf(o.ID);
   const gab = jasaGabung() && (!isInternal() || opt.dokumen);
+  // v1.4.2: Bayar Sekarang di kotak Instruksi pembayaran (Transfer / QRIS / E-Wallet → unggah bukti → diverifikasi admin)
+  const bayarOk = !isInternal() && !opt.id && !opt.dokumen && adaMetodeBayar() && o.Sisa > 0 && o.Status !== 'Batal' && !o._pending;
   const inv = o.InvoiceID ? invById(o.InvoiceID) : null;
   const pays = paysOf(o.ID);
   const neg = negara(o.Negara);
@@ -1334,7 +1336,8 @@ function invoicePaper(o, opt = {}) {
     <div class="row g-3 mt-1"><div class="col-md-6">
       <div class="pay-box"><div class="small-caps mb-2" style="color:#6B6885"><i class="bi bi-bank"></i> Instruksi pembayaran</div>${(s.bankInfo || []).map(bk => `<div class="d-flex justify-content-between align-items-center gap-2 py-1"><div><b>${esc(bk.bank)}</b> <span class="num">${esc(bk.noRek)}</span><div class="small muted">a.n. ${esc(bk.atasNama)}</div></div><button class="btn btn-sm btn-light" data-act="copy" data-text="${esc(bk.noRek)}"><i class="bi bi-copy"></i>Salin</button></div>`).join('')}
         ${ewalletAktif().map(e => `<div class="d-flex justify-content-between align-items-center gap-2 py-1"><div><b>${esc(e.nama)}</b> <span class="num">${esc(e.nomor)}</span><div class="small muted">a.n. ${esc(e.atasNama)}</div></div><button class="btn btn-sm btn-light" data-act="copy" data-text="${esc(e.nomor)}"><i class="bi bi-copy"></i>Salin</button></div>`).join('')}
-        <div class="small muted mt-2">Setelah transfer, kirim bukti pembayaran ke admin lewat WhatsApp. Verifikasi oleh admin.</div></div>
+        ${bayarOk ? `<button class="btn btn-primary w-100 mt-3 btn-bayar-skrg" data-act="bayarPilih" data-id="${o.ID}"><i class="bi bi-wallet2" aria-hidden="true"></i>Bayar Sekarang · ${rp(o.Sisa)}</button>
+        <div class="small muted mt-2">Pilih Transfer, QRIS, atau E-Wallet, lalu unggah bukti pembayaran. Verifikasi oleh admin.</div>` : `<div class="small muted mt-2">Unggah bukti pembayaran lewat menu Pesanan Saya → Bayar Sekarang, atau kirim lewat WhatsApp. Verifikasi oleh admin.</div>`}</div>
       ${o.Catatan ? `<div class="small mt-3"><div class="small-caps" style="color:#6B6885">Catatan</div>${esc(o.Catatan)}</div>` : ''}
     </div><div class="col-md-6"><div class="tot-box">
       ${gab ? `<div class="sum-row"><span>Subtotal barang</span><b>${rp((Number(o.Subtotal) || 0) + (Number(o.JasaTitip) || 0))}</b></div>` : `<div class="sum-row"><span>Subtotal barang</span><b>${rp(o.Subtotal)}</b></div>
@@ -4926,7 +4929,8 @@ async function gambarInvoiceJpg(o) {
   tulis('CARA PEMBAYARAN', P, ly + 22, F(800, 17), MUTED); ly += 56;
   bankAktif().slice(0, 4).forEach(b => { tulis(b.bank + '  ' + fmtNomor(b.noRek), P, ly, F(800, 22), INK); tulis('a.n. ' + String(b.atasNama || '').slice(0, 34), P, ly + 28, F(500, 19), MUTED); ly += 66; });
   ewalletAktif().slice(0, 4).forEach(e => { tulis(e.nama + '  ' + fmtNomor(e.nomor), P, ly, F(800, 22), INK); tulis('a.n. ' + String(e.atasNama || '').slice(0, 34), P, ly + 28, F(500, 19), MUTED); ly += 66; });
-  bungkus('Setelah membayar, kirim bukti transfer ke WhatsApp admin agar segera diverifikasi.', LW, F(500, 19), 3).forEach(l => { tulis(l, P, ly, F(500, 19), MUTED); ly += 27; });
+  if (qrisAktif().length) { bungkus('QRIS: buka menu Pesanan Saya → Bayar Sekarang, nominal terisi otomatis.', LW, F(600, 20), 3).forEach(l => { tulis(l, P, ly, F(600, 20), warna); ly += 28; }); ly += 10; }
+  bungkus('Setelah membayar, unggah bukti di menu Pesanan Saya → Bayar Sekarang agar segera diverifikasi.', LW, F(500, 19), 3).forEach(l => { tulis(l, P, ly, F(500, 19), MUTED); ly += 27; });
   y = Math.max(y + TH, ly) + 50;
 
   // ── Kaki ──
@@ -6282,7 +6286,7 @@ async function editorFotoProfil(file) {
 //   berikutnya tampil instan, lalu diperbarui di latar (stale-while-revalidate).
 // Semua fungsi memakai deklarasi function (ter-hoist): bootSalinan() dipanggil saat state S dibuat.
 // ════════════════════════════════════════════════════════
-function versiWeb() { return '1.4.1'; }
+function versiWeb() { return '1.4.2'; }
 
 /** Periksa js/config.js. URL /exec Apps Script bukan rahasia (keamanan dijaga token sesi + cek peran di server). */
 function statusKonfig() {

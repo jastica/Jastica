@@ -1259,3 +1259,10 @@ textarea.form-control { min-height: 96px; resize: vertical; }
 .tbl-vc th.cek, .tbl-vc td.cek { width: 44px; padding-right: 0; text-align: center; }
 .tbl-vc tr.dipilih td { background: var(--primary-subtle); }
 @media (prefers-reduced-motion: reduce) { .prod-chips-info > .chip-kat.laris-badge { animation: none !important; } }
+
+/* ═══ v1.4.2 ═══ */
+/* Kotak Instruksi pembayaran: tombol Bayar Sekarang */
+.pay-box .btn-bayar-skrg { min-height: 46px; justify-content: center; font-weight: 800; }
+/* Kartu katalog: Terlaris / Populer di pojok kiri atas foto (negara tetap di atas nama barang) */
+.prod-media > .prod-chips.prod-pojok { left: 10px; top: 10px; }
+@container (max-width: 199.98px) { .prod-media > .prod-chips.prod-pojok { left: 6px; top: 6px; } }

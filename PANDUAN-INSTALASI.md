@@ -1,6 +1,6 @@
 # Jastica — Panduan Instalasi & Deployment (Apps Script + GitHub Pages)
 
-Versi **1.4.2**. Jastica adalah aplikasi web satu halaman (SPA) untuk jasa titip Jakarta, Malaysia, Singapura, Jepang dan Thailand: pesanan, konversi kurs ke IDR, jasa titip, dompet kas, pembayaran (transfer, QRIS & e-wallet), invoice PDF dan gambar JPG ke WhatsApp, pengingat tagihan, poin & voucher member, katalog dengan nama barang otomatis dari foto, keamanan masuk (OTP pengurus, member masuk dengan PIN 6 digit, keluar otomatis), laporan, harga jual katalog dan rincian keuntungan, sisa stok, ulasan member, impor barang dari Excel, serta galeri foto barang, varian warna/ukuran/berat, dan jasa titip per barang.
+Versi **1.4.3**. Jastica adalah aplikasi web satu halaman (SPA) untuk jasa titip Jakarta, Malaysia, Singapura, Jepang dan Thailand: pesanan, konversi kurs ke IDR, jasa titip, dompet kas, pembayaran (transfer, QRIS & e-wallet), invoice PDF dan gambar JPG ke WhatsApp, pengingat tagihan, poin & voucher member, katalog dengan nama barang otomatis dari foto, keamanan masuk (OTP pengurus, member masuk dengan PIN 6 digit, keluar otomatis), laporan, harga jual katalog dan rincian keuntungan, sisa stok, ulasan member, impor barang dari Excel, serta galeri foto barang, varian warna/ukuran/berat, dan jasa titip per barang.
 
 ## Arsitektur (mulai 1.4)
 
@@ -25,14 +25,14 @@ https://USERNAME.github.io/NAMA-REPO/               https://script.google.com/ma
 
 ---
 
-## 0. Memperbarui dari versi sebelumnya (1.0.x sampai 1.4.1)
+## 0. Memperbarui dari versi sebelumnya (1.0.x sampai 1.4.2)
 
 Lewati bagian ini jika memasang dari nol.
 
-**Dari 1.4.0 atau 1.4.1 (sudah di GitHub Pages).**
+**Dari 1.4.0, 1.4.1, atau 1.4.2 (sudah di GitHub Pages).**
 1. Apps Script: ganti isi file **`Kode`** dengan `Kode.gs` baru → **Terapkan → Kelola deployment → ✏️ Edit → Versi: Versi baru → Terapkan**. URL `/exec` tetap sama.
 2. Frontend: ekstrak `jastica-web-update.zip` ke folder proyek Anda (misalnya `Documents\jastica-web`) dan pilih **timpa/replace**. Paket pembaruan **tidak berisi `js/config.js`**, jadi `GAS_URL` Anda tetap aman.
-3. Dari folder itu: `git add .` → `git commit -m "Jastica 1.4.2"` → `git push`. Tunggu 1–2 menit, lalu **Ctrl+Shift+R**.
+3. Dari folder itu: `git add .` → `git commit -m "Jastica 1.4.3"` → `git push`. Tunggu 1–2 menit, lalu **Ctrl+Shift+R**.
 
 **Pindah ke GitHub Pages (dari 1.3.x atau lebih lama), tanpa aplikasi berhenti.** Database, akun, dan semua data tetap sama; yang berubah hanya tempat tampilan aplikasi dibuka. Setiap deployment Apps Script terkunci pada versinya sendiri, jadi alamat lama tetap melayani aplikasi lama sampai alamat GitHub Pages siap.
 
@@ -42,7 +42,7 @@ Lewati bagian ini jika memasang dari nol.
 4. Buka URL baru itu di browser. Hasil yang benar berupa teks JSON yang memuat `"API Jastica aktif"`.
 5. Pasang frontend di GitHub Pages dengan URL baru tadi (bagian 3.2), lalu uji: masuk sebagai pengurus dan sebagai member.
 6. Bagikan alamat `https://USERNAME.github.io/NAMA-REPO/` ke member dan pengurus. Karena alamatnya berubah, setiap orang perlu **masuk sekali lagi** di alamat baru (sesi lama tidak terbawa). Data, PIN, dan kata sandi tidak berubah.
-7. Setelah semua pindah, nonaktifkan alamat lama: **Terapkan → Kelola deployment** → pilih deployment lama → **Arsipkan**. Jika aplikasi pernah ditanam di Blogger, ganti alamatnya (bagian 18).
+7. Setelah semua pindah, nonaktifkan alamat lama: **Terapkan → Kelola deployment** → pilih deployment lama → **Arsipkan**. Jika aplikasi pernah ditanam di Blogger, ganti alamatnya (bagian 19).
 
 **Perubahan database** terjadi otomatis saat permintaan pertama ke server. Data lama tidak diubah dan **tidak perlu** menjalankan `setupAppEnvironment` lagi:    - Dari 1.0.x: sheet **Vouchers** dan **PoinLog** ditambahkan, serta kolom baru di **Customers** dan **Orders**.
    - Dari 1.1.x: tidak ada sheet atau kolom baru untuk 1.2.
@@ -80,7 +80,7 @@ Jangan mengganti nama sheet `Vouchers`, `PoinLog`, dan `PinPerangkat` di spreads
 
 | File di Apps Script | Nomor baris | Isi baris itu |
 |---|---|---|
-| `Kode` | 4294 | `}` |
+| `Kode` | 4295 | `}` |
 
 Jika angkanya berbeda, salinan belum lengkap. Ulangi Ctrl+A → Ctrl+V.
 
@@ -173,7 +173,7 @@ git push -u origin main
 
 **h. Aktifkan GitHub Pages.** Di repository: **Settings → Pages** → *Source*: **Deploy from a branch** → *Branch*: **main** dan **/ (root)** → **Save**. Centang **Enforce HTTPS** (wajib untuk kamera). Tunggu 1–2 menit sampai muncul *"Your site is live at https://USERNAME.github.io/NAMA-REPO/"*.
 
-**i. Buka situsnya.** Halaman beranda Jastica tampil dan memuat katalog. Bila muncul layar penjelasan (misalnya "Konfigurasi belum lengkap"), ikuti langkah di layar itu atau lihat bagian 21.
+**i. Buka situsnya.** Halaman beranda Jastica tampil dan memuat katalog. Bila muncul layar penjelasan (misalnya "Konfigurasi belum lengkap"), ikuti langkah di layar itu atau lihat bagian 22.
 
 **Saat frontend diubah** (misalnya mengganti `GAS_URL` atau memasang versi baru): salin file baru ke folder yang sama, lalu dari folder itu:
 
@@ -548,7 +548,21 @@ Kalimat petunjuk di invoice PDF, gambar invoice, dan template bawaan kembali men
 
 **Label Terlaris / Populer di pojok kiri atas foto katalog.** Nama negara tetap di atas nama barang.
 
-## 16. Script Properties (Setelan proyek → Properti skrip)
+## 16. Perbaikan versi 1.4.3
+
+**Verifikasi & Tolak di Pembayaran & Mutasi kini selalu bekerja.**
+- **Dompet penerima terpilih otomatis** bila hanya ada satu dompet aktif, atau bila nama dompet sama dengan metode bayar member (misalnya bukti *GOPAY* → dompet *GoPay Merchant*). Pilihan tetap bisa diganti sebelum menekan **Verifikasi**.
+- Bila dompet belum dipilih, menekan **Verifikasi** membuka jendela **Verifikasi pembayaran** untuk memilih dompet lalu langsung memverifikasi. Sebelumnya hanya muncul peringatan singkat sehingga tombol terasa tidak bekerja.
+- Dompet yang sudah dipilih di kartu **tidak lagi kembali kosong** saat halaman diperbarui otomatis di latar.
+- **Tolak** → isi alasan → **Tolak pembayaran**. Server membaca data pembayaran langsung dari Sheets, sehingga penolakan tidak gagal karena salinan data lama.
+- Bila ada kendala (koneksi, hak akses, data berubah), alasannya kini **selalu tampil sebagai notifikasi**. Tidak ada lagi tombol yang diam tanpa respons.
+- Yang dapat memverifikasi dan menolak: **Super Admin, Owner, dan peran dengan hak *Pembayaran*** (bawaan: Admin Keuangan). Bila belum ada dompet aktif, kartu menampilkan petunjuk untuk menambahkannya di **Dompet & saldo**.
+
+**Member masuk → Beranda.** Setelah masuk (dengan PIN, OTP, atau setelah mendaftar), member langsung ke **Beranda**. Pengecualian: bila member diminta masuk saat menekan *Checkout* di keranjang, ia kembali ke **Keranjang** agar pesanan bisa langsung dikonfirmasi.
+
+**Detail barang: label Terlaris / Populer di pojok kanan atas foto.** Nama negara tetap di pojok kiri atas foto. Kartu katalog tidak berubah (label tetap di pojok kiri atas).
+
+## 17. Script Properties (Setelan proyek → Properti skrip)
 
 Semua rahasia hanya disimpan di sini, tidak di kode, Sheets, atau browser.
 
@@ -568,7 +582,7 @@ Versi 1.3 sampai 1.3.5 tidak menambah properti yang perlu Anda isi (1.3.4 hanya 
 
 Siapa pun yang punya akses **edit** ke proyek Apps Script bisa melihat Script Properties, jadi jangan menambah editor sembarangan.
 
-## 17. Fungsi pemeliharaan (jalankan dari editor)
+## 18. Fungsi pemeliharaan (jalankan dari editor)
 
 Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjung web.
 
@@ -580,7 +594,7 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 | `pasangTrigger` | Pasang ulang 3 trigger jika terhapus. |
 | `matikanOtpPengurus` | Matikan OTP wajib pengurus bila kode tidak sampai dan Super Admin terkunci (bagian 8). |
 
-## 18. Alamat aplikasi, domain sendiri & Blogger (opsional)
+## 19. Alamat aplikasi, domain sendiri & Blogger (opsional)
 
 - Alamat aplikasi untuk member dan pengurus: `https://USERNAME.github.io/NAMA-REPO/`. Alamat `/exec` hanya untuk `GAS_URL`.
 - **Domain sendiri** (misalnya `jastip.namausaha.com`): di repository → **Settings → Pages → Custom domain**, lalu ikuti petunjuk DNS dari GitHub. `GAS_URL` tidak perlu diubah.
@@ -594,7 +608,7 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 </div>
 ```
 
-## 19. Cara kerja kecepatan
+## 20. Cara kerja kecepatan
 
 - Seluruh aplikasi dimuat sekali dari GitHub Pages, dan perpindahan menu murni di browser. Data awal (katalog, kurs, pengaturan publik) diambil dari API lalu disimpan di perangkat. Kunjungan berikutnya langsung tampil dari salinan itu, lalu diperbarui diam-diam bila server punya data lebih baru.
 - Semua panggilan ke server memakai satu alamat (`POST /exec`, `Content-Type: text/plain`), jadi browser tidak perlu permintaan izin CORS tambahan. Token sesi dikirim di badan permintaan, tidak pernah di URL.
@@ -603,7 +617,7 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 - Sinkronisasi hanya mengambil baris yang berubah sejak terakhir (sinkron selisih), dan buka ulang memakai salinan lokal di browser (bagian 9).
 - Saat masuk, data 45 hari terakhir dan tagihan belum lunas dimuat lebih dulu; data lama menyusul di latar tanpa menahan layar.
 
-## 20. Batasan yang perlu diketahui
+## 21. Batasan yang perlu diketahui
 
 - **Pengujian** dilakukan di simulator lokal (tiruan layanan GAS + Chromium), bukan di server Google asli: uji backend lulus semua dan alur E2E tanpa error, termasuk tiruan respons Fonnte (terhubung, terputus, token salah). Pada percobaan pertama di GAS, laporkan pesan error dari Log eksekusi bila ada.
 - **Pembayaran** (transfer, QRIS, maupun e-wallet) diverifikasi admin dari bukti bayar. Konfirmasi otomatis lewat payment gateway tidak termasuk.
@@ -621,7 +635,7 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 - **Salinan data di browser**: untuk buka ulang yang cepat, data terakhir disimpan di browser perangkat itu. Di komputer bersama, selalu tekan **Keluar** agar salinannya terhapus.
 - **Keluar otomatis** setelah 5 menit tanpa aktivitas berlaku juga saat mengisi formulir panjang tanpa mengetik; draf Form Pesanan tetap tersimpan otomatis di perangkat.
 
-## 21. Pemecahan masalah
+## 22. Pemecahan masalah
 
 **Layar penjelasan saat membuka aplikasi.** Aplikasi memeriksa dirinya sendiri dan menampilkan penyebabnya:
 
@@ -635,6 +649,8 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 | *Aplikasi gagal dimuat* (dengan pesan error) | Error di skrip | Kirim tangkapan layar kotak itu ke pengembang |
 
 **Situs GitHub Pages menampilkan "404 File not found".** Buka repository di github.com. Bila `index.html` tidak terlihat di daftar paling atas (yang terlihat justru folder seperti `jastica-web`), berarti `git init` dijalankan satu level terlalu tinggi. Masuk ke folder yang berisi `index.html`, lalu jalankan `git init`, `git add .`, `git commit -m "Perbaiki struktur"`, `git branch -M main`, `git remote add origin …`, dan `git push -u origin main --force` (perintah `--force` menimpa isi lama yang salah). Periksa juga **Settings → Pages**: branch **main**, folder **/ (root)**.
+
+**Tombol Verifikasi / Tolak tidak merespons.** Pastikan frontend dan backend sudah versi 1.4.3 (ganti `Kode` + terbitkan versi baru, lalu push frontend dan tekan **Ctrl+Shift+R**). Sejak 1.4.3 setiap kendala tampil sebagai notifikasi: *Anda tidak memiliki akses* → minta Super Admin mencentang hak *Pembayaran* untuk peran Anda; *Pilih dompet penerima dana* → tambah atau aktifkan dompet di **Dompet & saldo**; *Server sedang sibuk* → tunggu beberapa detik lalu ulangi.
 
 **Perubahan tidak terlihat.** Backend: URL `/exec` selalu menjalankan versi yang terakhir diterbitkan, jadi terbitkan **versi baru** lewat Kelola deployment setelah mengganti `Kode`. Frontend: pastikan `git push` berhasil, tunggu 1–2 menit, lalu tekan **Ctrl+Shift+R**.
 

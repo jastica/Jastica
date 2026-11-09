@@ -1266,3 +1266,8 @@ textarea.form-control { min-height: 96px; resize: vertical; }
 /* Kartu katalog: Terlaris / Populer di pojok kiri atas foto (negara tetap di atas nama barang) */
 .prod-media > .prod-chips.prod-pojok { left: 10px; top: 10px; }
 @container (max-width: 199.98px) { .prod-media > .prod-chips.prod-pojok { left: 6px; top: 6px; } }
+
+/* ═══ v1.4.3 ═══ */
+/* Detail barang: Terlaris / Populer di pojok kanan atas foto (negara tetap di kiri atas) */
+.prod-media > .prod-chips.prod-pojok-kanan { left: auto; right: 10px; top: 10px; }
+@container (max-width: 199.98px) { .prod-media > .prod-chips.prod-pojok-kanan { left: auto; right: 6px; top: 6px; } }

@@ -609,7 +609,7 @@ async function startSession(sesi, next) {
   if (!(cached && cached.d)) cached = await pulihkanSalinanBesar(S.me.id);
   if (cached && cached.d) hydrate(cached);
   renderShellChrome();
-  const target = next && ROUTES[next] && (ROUTES[next].shell === 'adm' ? isInternal() : true) ? next : (isInternal() ? firstAdminRoute() : (S.cart.length ? 'keranjang' : 'pesanan'));
+  const target = next && ROUTES[next] && (ROUTES[next].shell === 'adm' ? isInternal() : true) ? next : (isInternal() ? firstAdminRoute() : 'home'); // v1.4.3: member mendarat di Beranda
   if (isInternal() && !cached) {
     // Tampilkan kerangka lalu muat data dalam satu panggilan batch
     go(target);
@@ -2563,11 +2563,12 @@ function aPembayaran(el, p, re) {
   const masukB = sum(S.d.payments.filter(x => x.Status === 'Terverifikasi' && String(ymd(x.Tanggal)).slice(0, 7) === today.slice(0, 7)), 'Jumlah');
   let body = '';
   if (st.tab === 'verifikasi') {
-    body = pend.length ? `<div class="row g-3">${pend.map(x => { const o = orderById(x.OrderID) || {}; return `<div class="col-md-6 col-xxl-4"><div class="cardx pad h-100 d-flex flex-column gap-3">
+    body = pend.length ? `<div class="row g-3">${pend.map(x => { const o = orderById(x.OrderID) || {}; const wSel = dompetVerif(st, x, ws); return `<div class="col-md-6 col-xxl-4"><div class="cardx pad h-100 d-flex flex-column gap-3">
       <div class="d-flex gap-3">${x.BuktiFileId ? `<button class="border-0 p-0 bg-transparent" data-act="previewFile" data-id="${x.BuktiFileId}" data-nama="Bukti ${esc(x.NoOrder)}.jpg" aria-label="Perbesar bukti"><img src="${esc(driveImg(x.BuktiFileId, 240))}" alt="Bukti transfer" style="width:84px;height:84px;object-fit:cover;border-radius:14px;background:var(--surface-3)" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'kpi-ic',innerHTML:'<i class=&quot;bi bi-image&quot;></i>'}))"></button>` : '<span class="kpi-ic"><i class="bi bi-image"></i></span>'}
         <div class="min-w-0"><div class="small muted">${tglJam(x.Tanggal)} · ${esc(x.Metode || '')}</div><div class="fs-4 fw-bold num">${rp(x.Jumlah)}</div><div class="small"><b>${esc(x.CustomerNama)}</b> · <button class="link-btn" data-act="openOrder" data-id="${x.OrderID}">#${esc(x.NoOrder)}</button></div><div class="small muted">Sisa tagihan ${rp(o.Sisa)}</div></div></div>
       ${x.Catatan ? `<div class="small tint p-2">${esc(x.Catatan)}</div>` : ''}
-      <select class="form-select form-select-sm" data-verw="${x.ID}" aria-label="Dompet penerima"><option value="">Pilih dompet penerima…</option>${ws.map(w => `<option value="${w.ID}">${esc(w.Nama)}</option>`).join('')}</select>
+      ${ws.length ? `<select class="form-select form-select-sm" data-verw="${x.ID}" aria-label="Dompet penerima"><option value="">Pilih dompet penerima…</option>${ws.map(w => `<option value="${w.ID}" ${wSel === w.ID ? 'selected' : ''}>${esc(w.Nama)}</option>`).join('')}</select>`
+        : `<div class="small alert-x warn mb-0"><i class="bi bi-wallet2"></i><div>Belum ada dompet aktif untuk menerima dana.${can('dompet') ? ' <button class="link-btn" data-go="a-dompet">Tambah dompet</button>' : ' Minta Owner menambahkannya di Dompet & saldo.'}</div></div>`}
       <div class="d-flex gap-2 mt-auto"><button class="btn btn-success flex-fill" data-act="payVerify" data-id="${x.ID}"><i class="bi bi-check2-circle"></i>Verifikasi</button><button class="btn btn-danger-soft" data-act="payReject" data-id="${x.ID}"><i class="bi bi-x-lg"></i>Tolak</button></div></div></div>`; }).join('')}</div>`
       : `<div class="cardx">${emptyState('bi-check2-all', 'Semua bukti transfer sudah diverifikasi', 'Bukti transfer baru dari customer akan muncul di sini.')}</div>`;
   } else if (st.tab === 'semua') {
@@ -2584,6 +2585,8 @@ function aPembayaran(el, p, re) {
   <div class="kpi-grid mb-4">${kpi('bi-hourglass-split', 'coral', 'Menunggu verifikasi', pend.length + ' bukti', rp(sum(pend, 'Jumlah')))}${kpi('bi-cash-coin', 'mint', 'Uang masuk hari ini', rp(masukH), 'Pembayaran terverifikasi')}${kpi('bi-calendar-check', '', 'Diterima bulan ini', rp(masukB), BULAN_PANJANG[new Date().getMonth()])}${kpi('bi-receipt', 'danger', 'Piutang berjalan', rp(sum(S.d.orders.filter(o => o.Sisa > 0 && o.Status !== 'Batal'), 'Sisa')), 'Belum lunas', '', 'danger')}</div>
   <div class="tabs-x"><button class="chip ${st.tab === 'verifikasi' ? 'on' : ''}" data-act="payTab" data-t="verifikasi"><i class="bi bi-patch-check"></i>Verifikasi<span class="count">${pend.length}</span></button><button class="chip ${st.tab === 'semua' ? 'on' : ''}" data-act="payTab" data-t="semua"><i class="bi bi-list-ul"></i>Semua pembayaran</button><button class="chip ${st.tab === 'mutasi' ? 'on' : ''}" data-act="payTab" data-t="mutasi"><i class="bi bi-arrow-left-right"></i>Mutasi kas</button></div>
   ${body}`;
+  // v1.4.3: dompet yang dipilih tetap terpilih walau halaman dirender ulang oleh sinkron latar
+  el.querySelectorAll('[data-verw]').forEach(s => { s.onchange = () => { (st.verw || (st.verw = {}))[s.dataset.verw] = s.value; s.classList.remove('is-invalid'); }; });
   const pq = $('#payQ'); if (pq) { pq.addEventListener('input', debounce(e => { st.q = e.target.value; st.page = 1; rerender(); setTimeout(() => { const x = $('#payQ'); x.focus(); x.setSelectionRange(x.value.length, x.value.length); }); }, 300)); $('#payW').onchange = e => { st.wallet = e.target.value; rerender(); }; }
   bindMutasiFilters(st);
 }
@@ -2600,24 +2603,67 @@ ACT.mutTipe = b => { const st = S.route === 'a-dompet' ? S.ui.dom : S.ui.pay; st
 ACT.mutPage = b => { const st = S.route === 'a-dompet' ? S.ui.dom : S.ui.pay; st.mpage = Number(b.dataset.page); rerender(); };
 ACT.payTab = b => { S.ui.pay.tab = b.dataset.t; S.ui.pay.page = 1; rerender(); };
 ACT.payPage = b => { S.ui.pay.page = Number(b.dataset.page); rerender(); };
-ACT.payVerify = async b => {
-  const x = S.d.payments.find(p => p.ID === b.dataset.id);
-  const w = $(`[data-verw="${x.ID}"]`).value;
-  if (!w) { $(`[data-verw="${x.ID}"]`).classList.add('is-invalid'); return toast('Pilih dompet penerima dana.', 'warning'); }
-  const o = orderById(x.OrderID);
-  await mutate('payment.verifikasi', { id: x.ID, walletId: w }, { btn: b, busyLabel: 'Memverifikasi…',
-    optimistic: () => {
+// ── v1.4.3: verifikasi & tolak bukti transfer selalu memberi respons (tidak pernah diam) ──
+/** Data pembayaran dari daftar lokal; bila belum termuat, cukup ID-nya — server tetap penentu. */
+function payKartu(id) { return S.d.payments.find(p => p.ID === id) || { ID: id, Jumlah: 0, CustomerNama: '', NoOrder: '', OrderID: '' }; }
+/** Dompet penerima bawaan: pilihan admin sebelumnya, satu-satunya dompet aktif, atau dompet yang namanya sama dengan metode bayar (mis. GOPAY). */
+function dompetVerif(st, x, ws) {
+  const pil = (st.verw || {})[x.ID];
+  if (pil && ws.some(w => w.ID === pil)) return pil;
+  if (ws.length === 1) return ws[0].ID;
+  const nm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const m = nm(x.Metode);
+  if (m.length < 3) return '';
+  const umum = /^(transfer|transferbank|bank|ewallet|qris|tunai|cash)$/.test(m);
+  const cocok = ws.filter(w => { const n = nm(w.Nama); return n === m || (!umum && m.length >= 4 && n.includes(m)); });
+  return cocok.length === 1 ? cocok[0].ID : '';
+}
+async function jalankanVerifikasi(x, w, btn, onOk) {
+  const st = S.ui.pay || {};
+  const lokal = S.d.payments.some(p => p.ID === x.ID);
+  const o = x.OrderID ? orderById(x.OrderID) : null;
+  const res = await mutate('payment.verifikasi', { id: x.ID, walletId: w }, { btn, busyLabel: 'Memverifikasi…', onOk,
+    optimistic: lokal ? () => {
       const u = [upsertLocal('payments', { ID: x.ID, Status: 'Terverifikasi', WalletID: w })];
-      if (o) { const dib = o.Dibayar + x.Jumlah; u.push(upsertLocal('orders', { ID: o.ID, Dibayar: dib, Sisa: Math.max(0, o.Total - dib), StatusBayar: dib >= o.Total ? 'Lunas' : 'DP' })); }
+      if (o) { const tot = Number(o.Total) || 0, dib = (Number(o.Dibayar) || 0) + (Number(x.Jumlah) || 0); u.push(upsertLocal('orders', { ID: o.ID, Dibayar: dib, Sisa: Math.max(0, tot - dib), StatusBayar: dib >= tot ? 'Lunas' : 'DP' })); }
       return u;
-    } });
+    } : null });
+  if (res.success && st.verw) delete st.verw[x.ID];
+  return res;
+}
+/** Dompet belum dipilih → jendela kecil untuk memilih dompet lalu verifikasi (bukan sekadar peringatan). */
+function pilihDompetVerifikasi(x) {
+  const ws = S.d.wallets.filter(w => w.Aktif !== false);
+  if (!ws.length) return toast('Belum ada dompet aktif untuk menerima dana. Tambahkan dulu di menu Dompet & saldo.', 'warning', 'Dompet belum ada');
+  const st = S.ui.pay || (S.ui.pay = { tab: 'verifikasi', q: '', wallet: '', page: 1 });
+  modal({ title: 'Verifikasi pembayaran', body: `<p class="muted mb-3">${x.CustomerNama ? `Customer <b>${esc(x.CustomerNama)}</b>` : 'Pembayaran'}${x.Jumlah ? ` · <b>${rp(x.Jumlah)}</b>` : ''}${x.NoOrder ? ` untuk #${esc(x.NoOrder)}` : ''}${x.Metode ? ` · ${esc(x.Metode)}` : ''}.</p>
+    <label class="form-label" for="verW">Dana masuk ke dompet <span class="req">*</span></label>
+    <select class="form-select" id="verW"><option value="">Pilih dompet penerima…</option>${ws.map(w => `<option value="${w.ID}">${esc(w.Nama)}${w.Jenis ? ' · ' + esc(w.Jenis) : ''}</option>`).join('')}</select>
+    <div class="small muted mt-2">Verifikasi setelah dana benar-benar masuk ke dompet ini. Sisa tagihan pesanan dihitung ulang otomatis.</div>`,
+    foot: '<button class="btn btn-light" data-bs-dismiss="modal">Batal</button><button class="btn btn-success" id="btnVerOk"><i class="bi bi-check2-circle"></i>Verifikasi</button>',
+    onShow: body => { const s = body.querySelector('#verW'); if (s) s.focus(); } });
+  $('#verW').onchange = e => e.target.classList.remove('is-invalid');
+  $('#btnVerOk').onclick = async e => {
+    const w = $('#verW').value;
+    if (!w) { $('#verW').classList.add('is-invalid'); $('#verW').focus(); return toast('Pilih dompet penerima dana.', 'warning'); }
+    (st.verw || (st.verw = {}))[x.ID] = w;
+    await jalankanVerifikasi(x, w, e.currentTarget, closeModal);
+  };
+}
+ACT.payVerify = async b => {
+  const x = payKartu(b.dataset.id);
+  const sel = document.querySelector(`#v-a-pembayaran [data-verw="${x.ID}"]`) || document.querySelector(`[data-verw="${x.ID}"]`);
+  const w = sel ? sel.value : '';
+  if (!w) return pilihDompetVerifikasi(x);
+  return jalankanVerifikasi(x, w, b);
 };
 ACT.payReject = async b => {
-  const x = S.d.payments.find(p => p.ID === b.dataset.id);
-  modal({ title: 'Tolak bukti transfer', body: `<p class="muted">Customer <b>${esc(x.CustomerNama)}</b> · ${rp(x.Jumlah)} untuk #${esc(x.NoOrder)}.</p><label class="form-label" for="tolakAlasan">Alasan penolakan</label><textarea class="form-control" id="tolakAlasan" rows="3" placeholder="Contoh: nominal tidak sesuai, bukti buram">Bukti transfer tidak sesuai atau dana belum masuk.</textarea>`,
+  const x = payKartu(b.dataset.id);
+  const lokal = S.d.payments.some(p => p.ID === x.ID);
+  modal({ title: 'Tolak bukti transfer', body: `<p class="muted">${x.CustomerNama ? `Customer <b>${esc(x.CustomerNama)}</b>` : 'Pembayaran'}${x.Jumlah ? ` · ${rp(x.Jumlah)}` : ''}${x.NoOrder ? ` untuk #${esc(x.NoOrder)}` : ''}.</p><label class="form-label" for="tolakAlasan">Alasan penolakan</label><textarea class="form-control" id="tolakAlasan" rows="3" placeholder="Contoh: nominal tidak sesuai, bukti buram">Bukti transfer tidak sesuai atau dana belum masuk.</textarea>`,
     foot: '<button class="btn btn-light" data-bs-dismiss="modal">Batal</button><button class="btn btn-danger" id="btnTolak">Tolak pembayaran</button>' });
   $('#btnTolak').onclick = async e => {
-    await mutate('payment.tolak', { id: x.ID, alasan: $('#tolakAlasan').value }, { btn: e.currentTarget, optimistic: () => upsertLocal('payments', { ID: x.ID, Status: 'Ditolak' }), onOk: closeModal });
+    await mutate('payment.tolak', { id: x.ID, alasan: $('#tolakAlasan').value }, { btn: e.currentTarget, optimistic: lokal ? () => upsertLocal('payments', { ID: x.ID, Status: 'Ditolak' }) : null, onOk: closeModal });
   };
 };
 ACT.payHapus = async b => {
@@ -3890,7 +3936,9 @@ document.addEventListener('click', e => {
   const a = e.target.closest('[data-act]');
   if (a && !a.disabled && ACT[a.dataset.act]) {
     if (a.tagName !== 'INPUT') e.preventDefault();
-    try { ACT[a.dataset.act](a, e); } catch (err) { console.error(err); toast(err.message, 'error'); }
+    // v1.4.3: kesalahan di aksi async juga ditampilkan (sebelumnya tertelan diam-diam → tombol terasa "tidak bisa diklik")
+    const salah = err => { console.error(err); toast((err && err.message) || 'Terjadi kesalahan. Coba lagi.', 'error'); };
+    try { const r = ACT[a.dataset.act](a, e); if (r && typeof r.catch === 'function') r.catch(salah); } catch (err) { salah(err); }
   }
   if (!e.target.closest('.tb-search')) $('#globalResults')?.classList.remove('open');
 });
@@ -5981,7 +6029,7 @@ ACT.prodDetail = async b => {
   const s = statItem(it.ID), sisa = sisaStok(it), qid = 'qd_' + it.ID.slice(0, 8), gid = 'galDet' + it.ID.slice(0, 8);
   const v0 = varianTerpilih(it);
   modal({ title: 'Detail barang', size: 'lg', body: `<div class="row g-4 detail-barang">
-      <div class="col-md-5"><div class="prod-media detail-img">${galeriHtml(it, { id: gid, w: 1000 })}<div class="prod-chips">${chipNegara(it)}${badgeKatalog(it)}</div>${badgeBawah(it)}</div>${galeriThumbs(it, gid)}</div>
+      <div class="col-md-5"><div class="prod-media detail-img">${galeriHtml(it, { id: gid, w: 1000 })}<div class="prod-chips">${chipNegara(it)}</div>${(bk => bk ? `<div class="prod-chips prod-pojok-kanan">${bk}</div>` : '')(badgeKatalog(it))}${badgeBawah(it)}</div>${galeriThumbs(it, gid)}</div>
       <div class="col-md-7"><div class="d-flex gap-2 flex-wrap mb-2">${negaraTag(it.Negara)}${it.Kategori ? `<span class="tag">${esc(it.Kategori)}</span>` : ''}</div>
         <h2 class="fs-4 fw-bold mb-1">${esc(it.Nama)}</h2>
         ${metaKatalog(it) || '<div class="small muted mb-2">Belum ada ulasan</div>'}
@@ -6286,7 +6334,7 @@ async function editorFotoProfil(file) {
 //   berikutnya tampil instan, lalu diperbarui di latar (stale-while-revalidate).
 // Semua fungsi memakai deklarasi function (ter-hoist): bootSalinan() dipanggil saat state S dibuat.
 // ════════════════════════════════════════════════════════
-function versiWeb() { return '1.4.2'; }
+function versiWeb() { return '1.4.3'; }
 
 /** Periksa js/config.js. URL /exec Apps Script bukan rahasia (keamanan dijaga token sesi + cek peran di server). */
 function statusKonfig() {

@@ -1,6 +1,6 @@
 # Jastica — Panduan Instalasi & Deployment (Apps Script + GitHub Pages)
 
-Versi **1.4.3**. Jastica adalah aplikasi web satu halaman (SPA) untuk jasa titip Jakarta, Malaysia, Singapura, Jepang dan Thailand: pesanan, konversi kurs ke IDR, jasa titip, dompet kas, pembayaran (transfer, QRIS & e-wallet), invoice PDF dan gambar JPG ke WhatsApp, pengingat tagihan, poin & voucher member, katalog dengan nama barang otomatis dari foto, keamanan masuk (OTP pengurus, member masuk dengan PIN 6 digit, keluar otomatis), laporan, harga jual katalog dan rincian keuntungan, sisa stok, ulasan member, impor barang dari Excel, serta galeri foto barang, varian warna/ukuran/berat, dan jasa titip per barang.
+Versi **1.4.4**. Jastica adalah aplikasi web satu halaman (SPA) untuk jasa titip Jakarta, Malaysia, Singapura, Jepang dan Thailand: pesanan, konversi kurs ke IDR, jasa titip, dompet kas, pembayaran (transfer, QRIS & e-wallet), invoice PDF dan gambar JPG ke WhatsApp, pengingat tagihan, poin & voucher member, katalog dengan nama barang otomatis dari foto, keamanan masuk (OTP pengurus, member masuk dengan PIN 6 digit, keluar otomatis), laporan, harga jual katalog dan rincian keuntungan, sisa stok, ulasan member, impor barang dari Excel, serta galeri foto barang, varian warna/ukuran/berat, dan jasa titip per barang.
 
 ## Arsitektur (mulai 1.4)
 
@@ -25,14 +25,14 @@ https://USERNAME.github.io/NAMA-REPO/               https://script.google.com/ma
 
 ---
 
-## 0. Memperbarui dari versi sebelumnya (1.0.x sampai 1.4.2)
+## 0. Memperbarui dari versi sebelumnya (1.0.x sampai 1.4.3)
 
 Lewati bagian ini jika memasang dari nol.
 
-**Dari 1.4.0, 1.4.1, atau 1.4.2 (sudah di GitHub Pages).**
+**Dari 1.4.0 sampai 1.4.3 (sudah di GitHub Pages).**
 1. Apps Script: ganti isi file **`Kode`** dengan `Kode.gs` baru → **Terapkan → Kelola deployment → ✏️ Edit → Versi: Versi baru → Terapkan**. URL `/exec` tetap sama.
 2. Frontend: ekstrak `jastica-web-update.zip` ke folder proyek Anda (misalnya `Documents\jastica-web`) dan pilih **timpa/replace**. Paket pembaruan **tidak berisi `js/config.js`**, jadi `GAS_URL` Anda tetap aman.
-3. Dari folder itu: `git add .` → `git commit -m "Jastica 1.4.3"` → `git push`. Tunggu 1–2 menit, lalu **Ctrl+Shift+R**.
+3. Dari folder itu: `git add .` → `git commit -m "Jastica 1.4.4"` → `git push`. Tunggu 1–2 menit, lalu **Ctrl+Shift+R**.
 
 **Pindah ke GitHub Pages (dari 1.3.x atau lebih lama), tanpa aplikasi berhenti.** Database, akun, dan semua data tetap sama; yang berubah hanya tempat tampilan aplikasi dibuka. Setiap deployment Apps Script terkunci pada versinya sendiri, jadi alamat lama tetap melayani aplikasi lama sampai alamat GitHub Pages siap.
 
@@ -42,7 +42,7 @@ Lewati bagian ini jika memasang dari nol.
 4. Buka URL baru itu di browser. Hasil yang benar berupa teks JSON yang memuat `"API Jastica aktif"`.
 5. Pasang frontend di GitHub Pages dengan URL baru tadi (bagian 3.2), lalu uji: masuk sebagai pengurus dan sebagai member.
 6. Bagikan alamat `https://USERNAME.github.io/NAMA-REPO/` ke member dan pengurus. Karena alamatnya berubah, setiap orang perlu **masuk sekali lagi** di alamat baru (sesi lama tidak terbawa). Data, PIN, dan kata sandi tidak berubah.
-7. Setelah semua pindah, nonaktifkan alamat lama: **Terapkan → Kelola deployment** → pilih deployment lama → **Arsipkan**. Jika aplikasi pernah ditanam di Blogger, ganti alamatnya (bagian 19).
+7. Setelah semua pindah, nonaktifkan alamat lama: **Terapkan → Kelola deployment** → pilih deployment lama → **Arsipkan**. Jika aplikasi pernah ditanam di Blogger, ganti alamatnya (bagian 20).
 
 **Perubahan database** terjadi otomatis saat permintaan pertama ke server. Data lama tidak diubah dan **tidak perlu** menjalankan `setupAppEnvironment` lagi:    - Dari 1.0.x: sheet **Vouchers** dan **PoinLog** ditambahkan, serta kolom baru di **Customers** dan **Orders**.
    - Dari 1.1.x: tidak ada sheet atau kolom baru untuk 1.2.
@@ -51,7 +51,8 @@ Lewati bagian ini jika memasang dari nol.
    - Dari 1.3.1: tidak ada sheet, kolom, baris, atau properti baru untuk 1.3.2.
    - Dari 1.3.2: kolom **HargaJual** ditambahkan otomatis di sheet **Items** dan **OrderItems**. Data lama tidak berubah: barang dan pesanan lama tetap memakai harga toko (margin Rp 0) sampai Anda mengisi harga jual.
    - Dari 1.3.3: sheet **Reviews** (ulasan), kolom **Stok** dan **StokSejak** di sheet **Items**, serta folder Drive **Foto Ulasan** dibuat otomatis. Barang lama tidak dibatasi stoknya sampai Anda mengisi sisa stok.
-   - Dari 1.3.5 dan 1.4.0: tidak ada sheet, kolom, atau properti baru untuk 1.4.x.
+   - Dari 1.3.5 dan 1.4.0: tidak ada sheet, kolom, atau properti baru untuk 1.4.0–1.4.3.
+   - Dari 1.4.3 ke 1.4.4: kolom **KurirKirim** dan **Resi** ditambahkan di sheet **Orders**, dan sheet **Broadcast** (antrean Broadcast WhatsApp voucher) dibuat otomatis. Data lama tidak berubah.
    - Dari 1.3.4: kolom **PinHash**, **PinSalt**, **Foto** di sheet **Users** serta **FotoLain**, **Varian**, **JasaItem** di sheet **Items** dibuat otomatis. Member lama tetap bisa masuk: PIN masuk cepat lama langsung menjadi PIN akun, atau masuk sekali dengan kata sandi lama lalu wajib membuat PIN 6 angka (lihat bagian 13).
 4. Hal yang terjadi otomatis saat pembaruan:
    - Kurir **"Ambil di tempat"** dihapus dari daftar kurir, karena sekarang sudah ada pilihan **Ambil sendiri (pick up)** bawaan. Kurir lain tidak berubah.
@@ -80,7 +81,7 @@ Jangan mengganti nama sheet `Vouchers`, `PoinLog`, dan `PinPerangkat` di spreads
 
 | File di Apps Script | Nomor baris | Isi baris itu |
 |---|---|---|
-| `Kode` | 4295 | `}` |
+| `Kode` | 4668 | `}` |
 
 Jika angkanya berbeda, salinan belum lengkap. Ulangi Ctrl+A → Ctrl+V.
 
@@ -173,7 +174,7 @@ git push -u origin main
 
 **h. Aktifkan GitHub Pages.** Di repository: **Settings → Pages** → *Source*: **Deploy from a branch** → *Branch*: **main** dan **/ (root)** → **Save**. Centang **Enforce HTTPS** (wajib untuk kamera). Tunggu 1–2 menit sampai muncul *"Your site is live at https://USERNAME.github.io/NAMA-REPO/"*.
 
-**i. Buka situsnya.** Halaman beranda Jastica tampil dan memuat katalog. Bila muncul layar penjelasan (misalnya "Konfigurasi belum lengkap"), ikuti langkah di layar itu atau lihat bagian 22.
+**i. Buka situsnya.** Halaman beranda Jastica tampil dan memuat katalog. Bila muncul layar penjelasan (misalnya "Konfigurasi belum lengkap"), ikuti langkah di layar itu atau lihat bagian 23.
 
 **Saat frontend diubah** (misalnya mengganti `GAS_URL` atau memasang versi baru): salin file baru ke folder yang sama, lalu dari folder itu:
 
@@ -562,7 +563,48 @@ Kalimat petunjuk di invoice PDF, gambar invoice, dan template bawaan kembali men
 
 **Detail barang: label Terlaris / Populer di pojok kanan atas foto.** Nama negara tetap di pojok kiri atas foto. Kartu katalog tidak berubah (label tetap di pojok kiri atas).
 
-## 17. Script Properties (Setelan proyek → Properti skrip)
+## 17. Fitur baru versi 1.4.4
+
+**Update pesanan terpilih (menu Pesanan pengurus).** Centang satu atau beberapa pesanan di daftar **Pesanan**. Bilah ungu di atas tabel menampilkan tombol:
+- **Dibeli**, **Selesai**: langsung mengubah status semua pesanan terpilih.
+- **Dikirim**: membuka jendela **Kirim pesanan**. Setiap pesanan wajib diberi **kurir pengirim**: **JNE**, **J&T**, **GoSend**, atau **Grab Express**.
+  - **JNE** dan **J&T** wajib **nomor resi** (6–30 huruf/angka; spasi dibuang, huruf kecil dijadikan huruf besar).
+  - **GoSend** dan **Grab Express** tanpa nomor resi.
+  - Tombol **Kurir untuk semua** mengisi kurir yang sama ke semua pesanan, lalu tinggal mengetik resi masing-masing.
+  - Pesanan **Ambil sendiri (pick up)** tidak perlu kurir dan resi.
+- **Batal**: dengan konfirmasi. Poin yang ditukar member dikembalikan seperti sebelumnya.
+- **Hapus Pesanan** (hanya peran dengan hak *Hapus pesanan*): menghapus permanen pesanan beserta rincian barang, bukti bayar, dan invoicenya. Pesanan yang sudah punya pembayaran **terverifikasi** dilewati; ubah statusnya menjadi Batal.
+
+Aturan kurir & resi yang sama berlaku saat menekan **Dikirim** di laci pesanan, dan saat mengubah status menjadi **Dikirim** di **Form Pesanan**. Laci pesanan menampilkan kurir & resi beserta tombol salin resi.
+
+**Kurir - nomor resi di invoice member.** Setelah pesanan **Dikirim** (dan tetap saat **Selesai**), invoice member di **Pesanan Saya** menampilkan baris seperti **JNE - 2434954359458** tepat di bawah nomor WhatsApp toko. Untuk GoSend dan Grab Express hanya nama kurir. Hal yang sama ada di pratinjau invoice pengurus, gambar invoice WhatsApp, dan PDF invoice yang diterbitkan setelah pesanan dikirim.
+
+**Instruksi pembayaran disembunyikan setelah lunas.** Begitu pesanan **Lunas**, kotak *Instruksi pembayaran* (rekening, e-wallet, Bayar Sekarang) tidak ditampilkan lagi di invoice member maupun pratinjau invoice pengurus. Gambar invoice dan PDF yang dibuat setelah lunas juga tanpa cara pembayaran. PDF yang sudah terbit sebelumnya tidak berubah sampai invoice diterbitkan/dikirim ulang.
+
+**Broadcast WhatsApp voucher (Super Admin & Owner).** Untuk membagikan kode voucher event tertentu lewat WhatsApp (Fonnte):
+1. Buat voucher (biasanya **Buat massal**), lalu di tab **Voucher** centang voucher yang akan dibagikan.
+2. Tekan **Broadcast WhatsApp** di bilah pilihan.
+3. Atur penerima:
+   - **Pendaftar pertama**: member yang paling awal mendaftar akun (bisa dibatasi rentang tanggal daftar). Akun nonaktif dilewati.
+   - **Pembeli terbanyak**: diurutkan menurut **total belanja (Rp)** atau **jumlah pesanan** (bisa dibatasi rentang tanggal pesanan; pesanan Batal tidak dihitung).
+   - **Jumlah penerima** bebas diatur (misalnya 20 pendaftar pertama atau 10 pembeli terbanyak), maksimal sebanyak voucher yang dipilih. Satu penerima mendapat satu kode.
+4. Periksa daftar penerima beserta kode masing-masing, ubah isi pesan bila perlu (wajib memuat `{kode}`; variabel lain: `{nama}`, `{potongan}`, `{minBelanja}`, `{berlaku}`, `{alasan}`, `{peringkat}`, `{event}`, `{app}`, `{link}`), lalu tekan **Mulai broadcast**.
+
+Pengiriman berjalan otomatis di server, jadi aplikasi boleh ditutup:
+- Pesan pertama dikirim segera.
+- Pesan berikutnya dikirim **1 pesan per menit**.
+- Setelah setiap **10 pesan**, ada **jeda 10 menit** sebelum pesan ke-11, ke-21, dan seterusnya.
+
+Panel **Broadcast WhatsApp** di tab Voucher menampilkan kemajuan (terkirim, gagal, menunggu) dan perkiraan jam pesan berikutnya serta jam selesai. Dari panel itu:
+- **Rincian**: status per penerima.
+- **Hentikan**: sisa pesan dibatalkan, vouchernya tetap aktif.
+- **Kirim ulang gagal**: pesan yang gagal dimasukkan lagi ke antrean.
+
+Baris voucher menandai **WA terkirim ke …**. Voucher yang sudah terkirim tidak bisa dibagikan dua kali. Voucher yang terpakai, dinonaktifkan, atau kedaluwarsa sebelum gilirannya otomatis **dilewati**. Hanya satu broadcast yang bisa berjalan pada satu waktu.
+
+Broadcast memakai trigger **`jobBroadcast`** (tiap 1 menit). Trigger ini dipasang otomatis saat broadcast dimulai dan dilepas otomatis saat antrean habis. Jangan menghapusnya selama broadcast berjalan.
+
+## 18. Script Properties (Setelan proyek → Properti skrip)
 
 Semua rahasia hanya disimpan di sini, tidak di kode, Sheets, atau browser.
 
@@ -582,7 +624,7 @@ Versi 1.3 sampai 1.3.5 tidak menambah properti yang perlu Anda isi (1.3.4 hanya 
 
 Siapa pun yang punya akses **edit** ke proyek Apps Script bisa melihat Script Properties, jadi jangan menambah editor sembarangan.
 
-## 18. Fungsi pemeliharaan (jalankan dari editor)
+## 19. Fungsi pemeliharaan (jalankan dari editor)
 
 Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjung web.
 
@@ -591,10 +633,10 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 | `resetAksesSuperAdmin` | Sandi Super Admin hilang → sandi acak baru dicetak di log, wajib diganti saat login. |
 | `rotasiSecretSesi` | Keluarkan **semua** pengguna dari semua perangkat (misalnya jika curiga ada kebocoran). |
 | `hapusDataContoh` | Hapus data contoh hasil setup. |
-| `pasangTrigger` | Pasang ulang 3 trigger jika terhapus. |
+| `pasangTrigger` | Pasang ulang 3 trigger jika terhapus. (Trigger `jobBroadcast` dipasang & dilepas otomatis oleh Broadcast WhatsApp.) |
 | `matikanOtpPengurus` | Matikan OTP wajib pengurus bila kode tidak sampai dan Super Admin terkunci (bagian 8). |
 
-## 19. Alamat aplikasi, domain sendiri & Blogger (opsional)
+## 20. Alamat aplikasi, domain sendiri & Blogger (opsional)
 
 - Alamat aplikasi untuk member dan pengurus: `https://USERNAME.github.io/NAMA-REPO/`. Alamat `/exec` hanya untuk `GAS_URL`.
 - **Domain sendiri** (misalnya `jastip.namausaha.com`): di repository → **Settings → Pages → Custom domain**, lalu ikuti petunjuk DNS dari GitHub. `GAS_URL` tidak perlu diubah.
@@ -608,7 +650,7 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 </div>
 ```
 
-## 20. Cara kerja kecepatan
+## 21. Cara kerja kecepatan
 
 - Seluruh aplikasi dimuat sekali dari GitHub Pages, dan perpindahan menu murni di browser. Data awal (katalog, kurs, pengaturan publik) diambil dari API lalu disimpan di perangkat. Kunjungan berikutnya langsung tampil dari salinan itu, lalu diperbarui diam-diam bila server punya data lebih baru.
 - Semua panggilan ke server memakai satu alamat (`POST /exec`, `Content-Type: text/plain`), jadi browser tidak perlu permintaan izin CORS tambahan. Token sesi dikirim di badan permintaan, tidak pernah di URL.
@@ -617,7 +659,7 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 - Sinkronisasi hanya mengambil baris yang berubah sejak terakhir (sinkron selisih), dan buka ulang memakai salinan lokal di browser (bagian 9).
 - Saat masuk, data 45 hari terakhir dan tagihan belum lunas dimuat lebih dulu; data lama menyusul di latar tanpa menahan layar.
 
-## 21. Batasan yang perlu diketahui
+## 22. Batasan yang perlu diketahui
 
 - **Pengujian** dilakukan di simulator lokal (tiruan layanan GAS + Chromium), bukan di server Google asli: uji backend lulus semua dan alur E2E tanpa error, termasuk tiruan respons Fonnte (terhubung, terputus, token salah). Pada percobaan pertama di GAS, laporkan pesan error dari Log eksekusi bila ada.
 - **Pembayaran** (transfer, QRIS, maupun e-wallet) diverifikasi admin dari bukti bayar. Konfirmasi otomatis lewat payment gateway tidak termasuk.
@@ -634,8 +676,9 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 - **Satu akun satu perangkat**: login di perangkat baru otomatis mengakhiri sesi di perangkat lama (berlaku untuk semua peran, termasuk customer). Perangkat lama yang layarnya terbuka ditutup dalam ±15 detik.
 - **Salinan data di browser**: untuk buka ulang yang cepat, data terakhir disimpan di browser perangkat itu. Di komputer bersama, selalu tekan **Keluar** agar salinannya terhapus.
 - **Keluar otomatis** setelah 5 menit tanpa aktivitas berlaku juga saat mengisi formulir panjang tanpa mengetik; draf Form Pesanan tetap tersimpan otomatis di perangkat.
+- **Broadcast WhatsApp** berjalan dari trigger Apps Script tiap menit, jadi waktu kirim bisa bergeser beberapa detik sampai ±1 menit (Google tidak menjamin detik yang tepat). Satu broadcast maksimal 200 penerima, dan kuota pesan mengikuti paket Fonnte Anda. Kode voucher tidak dikunci ke penerima tertentu: siapa pun yang memegang kode bisa memakainya sekali. Kirim promosi hanya ke member yang bersedia menerima pesan agar nomor WhatsApp toko tidak dilaporkan spam.
 
-## 22. Pemecahan masalah
+## 23. Pemecahan masalah
 
 **Layar penjelasan saat membuka aplikasi.** Aplikasi memeriksa dirinya sendiri dan menampilkan penyebabnya:
 
@@ -649,6 +692,10 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 | *Aplikasi gagal dimuat* (dengan pesan error) | Error di skrip | Kirim tangkapan layar kotak itu ke pengembang |
 
 **Situs GitHub Pages menampilkan "404 File not found".** Buka repository di github.com. Bila `index.html` tidak terlihat di daftar paling atas (yang terlihat justru folder seperti `jastica-web`), berarti `git init` dijalankan satu level terlalu tinggi. Masuk ke folder yang berisi `index.html`, lalu jalankan `git init`, `git add .`, `git commit -m "Perbaiki struktur"`, `git branch -M main`, `git remote add origin …`, dan `git push -u origin main --force` (perintah `--force` menimpa isi lama yang salah). Periksa juga **Settings → Pages**: branch **main**, folder **/ (root)**.
+
+**Broadcast WhatsApp tidak terkirim.** Buka **Rincian** di panel Broadcast. *Token Fonnte tidak valid* atau *Device terputus* → perbaiki di Pengaturan → WhatsApp & keamanan (bagian 5), lalu tekan **Kirim ulang gagal**. Bila panel lama tertahan di *Berjalan*, buka Apps Script → **Pemicu (Triggers)**: pastikan ada `jobBroadcast` setiap menit. Trigger itu dipasang ulang otomatis saat Anda menekan **Kirim ulang gagal** atau memulai broadcast baru.
+
+**Status Dikirim ditolak.** Isi kurir pengirim. Untuk JNE / J&T isi juga nomor resi (6–30 huruf/angka). Pastikan backend sudah versi 1.4.4.
 
 **Tombol Verifikasi / Tolak tidak merespons.** Pastikan frontend dan backend sudah versi 1.4.3 (ganti `Kode` + terbitkan versi baru, lalu push frontend dan tekan **Ctrl+Shift+R**). Sejak 1.4.3 setiap kendala tampil sebagai notifikasi: *Anda tidak memiliki akses* → minta Super Admin mencentang hak *Pembayaran* untuk peran Anda; *Pilih dompet penerima dana* → tambah atau aktifkan dompet di **Dompet & saldo**; *Server sedang sibuk* → tunggu beberapa detik lalu ulangi.
 

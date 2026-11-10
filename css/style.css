@@ -1271,3 +1271,43 @@ textarea.form-control { min-height: 96px; resize: vertical; }
 /* Detail barang: Terlaris / Populer di pojok kanan atas foto (negara tetap di kiri atas) */
 .prod-media > .prod-chips.prod-pojok-kanan { left: auto; right: 10px; top: 10px; }
 @container (max-width: 199.98px) { .prod-media > .prod-chips.prod-pojok-kanan { left: auto; right: 6px; top: 6px; } }
+
+/* ═══ v1.4.4 ═══ */
+/* Bilah pesanan terpilih: tombol langsung Dibeli / Dikirim / Selesai / Batal / Hapus Pesanan */
+.bulk-bar .bulk-aksi { display: flex; flex-wrap: wrap; gap: 6px; }
+.bulk-bar .bulk-aksi .btn { min-height: 36px; }
+.btn-hapus-bulk { --bs-btn-bg: #FFE4E6; --bs-btn-color: #BE123C; --bs-btn-border-color: #FFE4E6; --bs-btn-hover-bg: #E11D48; --bs-btn-hover-color: #fff; --bs-btn-hover-border-color: #E11D48; }
+/* Jendela Kirim pesanan: kurir & resi per pesanan */
+.kirim-list { display: grid; gap: 8px; max-height: 52vh; overflow: auto; padding-right: 2px; }
+.kirim-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 10px 14px; align-items: start; padding: 12px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border); }
+.kirim-row[data-pickup] { align-items: center; }
+.kirim-info { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.kirim-info .sub { display: block; font-size: 12px; color: var(--muted); }
+.kirim-input { display: grid; grid-template-columns: minmax(120px, .9fr) minmax(0, 1.1fr); gap: 6px 8px; align-items: center; }
+.kirim-input .form-select, .kirim-input .form-control { min-height: 40px; }
+.kirim-input [data-resi][hidden], .kirim-input .kirim-tanpa[hidden] { display: none !important; }
+.kirim-input .kirim-tanpa { align-self: center; }
+.kirim-input [data-err] { grid-column: 1 / -1; margin-top: 0; }
+.kirim-input [data-err]:empty { display: none !important; }
+.kirim-form { background: var(--surface); }
+.kurir-semua { display: flex; flex-wrap: wrap; gap: 6px; }
+@media (max-width: 575.98px) { .kirim-row { grid-template-columns: 1fr; } }
+/* Invoice: kurir pengirim - nomor resi (di bawah nomor WhatsApp toko) */
+.inv-paper .inv-kirim { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: #F1EEFB; color: #1F1B3A; font-size: 12.5px; letter-spacing: .01em; }
+.inv-paper .inv-kirim i { color: var(--primary-ink); }
+/* Broadcast WhatsApp voucher */
+.btn-wa-solid { --bs-btn-bg: #10B981; --bs-btn-color: #fff; --bs-btn-border-color: #10B981; --bs-btn-hover-bg: #059669; --bs-btn-hover-color: #fff; --bs-btn-hover-border-color: #059669; --bs-btn-disabled-bg: #10B981; --bs-btn-disabled-border-color: #10B981; --bs-btn-disabled-color: #fff; }
+.bc-panel .bc-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.bc-panel .bc-ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 19px; background: var(--mint-subtle); color: var(--mint-ink); flex: none; }
+.bc-panel .bc-head > .min-w-0 { flex: 1 1 200px; }
+.bc-panel .bc-aksi { display: flex; gap: 6px; flex-wrap: wrap; }
+.bc-panel .bc-bar { height: 8px; border-radius: 999px; background: var(--surface-3); overflow: hidden; margin: 12px 0 8px; }
+.bc-panel .bc-bar span { display: block; height: 100%; border-radius: inherit; background: var(--mint); transition: width .3s ease; }
+.bc-penerima { max-height: 240px; overflow: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.tbl.tbl-sm th { padding: 8px 10px; position: sticky; top: 0; }
+.tbl.tbl-sm td { padding: 8px 10px; font-size: 13px; }
+.bc-var { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.bc-var .chip { min-height: 32px; padding: 4px 10px; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.bc-pratinjau { white-space: normal; padding: 12px 14px; border-radius: 14px 14px 14px 4px; background: #DCF8C6; color: #111B21; font-size: 13.5px; line-height: 1.5; max-width: 460px; box-shadow: var(--sh-1); }
+.bc-label { display: block; font-size: 12px; color: var(--mint-ink); }
+.bc-rinci { max-height: 60vh; overflow: auto; }

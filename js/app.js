@@ -1316,13 +1316,15 @@ function invoicePaper(o, opt = {}) {
   const gab = jasaGabung() && (!isInternal() || opt.dokumen);
   // v1.4.2: Bayar Sekarang di kotak Instruksi pembayaran (Transfer / QRIS / E-Wallet → unggah bukti → diverifikasi admin)
   const bayarOk = !isInternal() && !opt.id && !opt.dokumen && adaMetodeBayar() && o.Sisa > 0 && o.Status !== 'Batal' && !o._pending;
+  const lunasInv = o.StatusBayar === 'Lunas'; // v1.4.4: kotak Instruksi pembayaran tidak ditampilkan lagi setelah lunas
+  const kirimInv = teksKirim(o);              // v1.4.4: "Kurir - Nomor resi" setelah pesanan Dikirim
   const inv = o.InvoiceID ? invById(o.InvoiceID) : null;
   const pays = paysOf(o.ID);
   const neg = negara(o.Negara);
   return `<div class="inv-paper" id="${opt.id || 'invPaper'}">
     <div class="d-flex justify-content-between gap-3 flex-wrap mb-3">
       <div><div class="d-flex align-items-center gap-2"><span class="brand-logo" style="width:36px;height:36px">${s.logoUrl ? `<img src="${esc(s.logoUrl)}" alt="">` : LOGO_SVG}</span><span class="inv-brand">${esc(s.appName || 'Jastica')}</span></div>
-        <div class="muted small mt-1">${esc(s.tagline || '')}<br>${esc(s.bizAlamat || '')}<br><i class="bi bi-whatsapp"></i> ${esc(fmtHP(s.bizHP))}${s.bizEmail ? ' · ' + esc(s.bizEmail) : ''}</div></div>
+        <div class="muted small mt-1">${esc(s.tagline || '')}<br>${esc(s.bizAlamat || '')}<br><i class="bi bi-whatsapp"></i> ${esc(fmtHP(s.bizHP))}${s.bizEmail ? ' · ' + esc(s.bizEmail) : ''}</div>${kirimInv ? `<div class="inv-kirim mt-1" title="Kurir pengirim - nomor resi"><i class="bi bi-truck" aria-hidden="true"></i><b>${esc(kirimInv)}</b></div>` : ''}</div>
       <div class="text-end"><span class="pill primary nodot">${inv ? 'INVOICE RESMI' : 'RINCIAN PESANAN'}</span><div class="inv-no mt-2">${esc(inv ? inv.NoInvoice : o.NoOrder)}</div>
         <div class="small muted mt-1">${inv ? `Tanggal terbit: <b style="color:#1F1B3A">${tgl(inv.Tanggal)}</b><br>Jatuh tempo: <b style="color:#E11D48">${tgl(inv.JatuhTempo)}</b><br>` : `Dibuat: <b style="color:#1F1B3A">${tglJam(o.Tanggal)}</b><br>`}No. pesanan: <b style="color:#1F1B3A">${esc(o.NoOrder)}</b></div>
         <div class="mt-2">${statusBayarPill(o)}</div></div>
@@ -1334,10 +1336,10 @@ function invoicePaper(o, opt = {}) {
       ${o.Ongkir ? `<tr><td></td><td><i class="bi bi-truck"></i> Ongkir domestik <span class="muted small">(${esc(o.Kurir || '-')})</span></td><td></td><td></td>${gab ? '<td></td>' : '<td></td><td></td><td></td>'}<td class="r num"><b>${num(o.Ongkir)}</b></td></tr>` : ''}
     </tbody></table></div>
     <div class="row g-3 mt-1"><div class="col-md-6">
-      <div class="pay-box"><div class="small-caps mb-2" style="color:#6B6885"><i class="bi bi-bank"></i> Instruksi pembayaran</div>${(s.bankInfo || []).map(bk => `<div class="d-flex justify-content-between align-items-center gap-2 py-1"><div><b>${esc(bk.bank)}</b> <span class="num">${esc(bk.noRek)}</span><div class="small muted">a.n. ${esc(bk.atasNama)}</div></div><button class="btn btn-sm btn-light" data-act="copy" data-text="${esc(bk.noRek)}"><i class="bi bi-copy"></i>Salin</button></div>`).join('')}
+      ${lunasInv ? '' : `<div class="pay-box"><div class="small-caps mb-2" style="color:#6B6885"><i class="bi bi-bank"></i> Instruksi pembayaran</div>${(s.bankInfo || []).map(bk => `<div class="d-flex justify-content-between align-items-center gap-2 py-1"><div><b>${esc(bk.bank)}</b> <span class="num">${esc(bk.noRek)}</span><div class="small muted">a.n. ${esc(bk.atasNama)}</div></div><button class="btn btn-sm btn-light" data-act="copy" data-text="${esc(bk.noRek)}"><i class="bi bi-copy"></i>Salin</button></div>`).join('')}
         ${ewalletAktif().map(e => `<div class="d-flex justify-content-between align-items-center gap-2 py-1"><div><b>${esc(e.nama)}</b> <span class="num">${esc(e.nomor)}</span><div class="small muted">a.n. ${esc(e.atasNama)}</div></div><button class="btn btn-sm btn-light" data-act="copy" data-text="${esc(e.nomor)}"><i class="bi bi-copy"></i>Salin</button></div>`).join('')}
         ${bayarOk ? `<button class="btn btn-primary w-100 mt-3 btn-bayar-skrg" data-act="bayarPilih" data-id="${o.ID}"><i class="bi bi-wallet2" aria-hidden="true"></i>Bayar Sekarang · ${rp(o.Sisa)}</button>
-        <div class="small muted mt-2">Pilih Transfer, QRIS, atau E-Wallet, lalu unggah bukti pembayaran. Verifikasi oleh admin.</div>` : `<div class="small muted mt-2">Unggah bukti pembayaran lewat menu Pesanan Saya → Bayar Sekarang, atau kirim lewat WhatsApp. Verifikasi oleh admin.</div>`}</div>
+        <div class="small muted mt-2">Pilih Transfer, QRIS, atau E-Wallet, lalu unggah bukti pembayaran. Verifikasi oleh admin.</div>` : `<div class="small muted mt-2">Unggah bukti pembayaran lewat menu Pesanan Saya → Bayar Sekarang, atau kirim lewat WhatsApp. Verifikasi oleh admin.</div>`}</div>`}
       ${o.Catatan ? `<div class="small mt-3"><div class="small-caps" style="color:#6B6885">Catatan</div>${esc(o.Catatan)}</div>` : ''}
     </div><div class="col-md-6"><div class="tot-box">
       ${gab ? `<div class="sum-row"><span>Subtotal barang</span><b>${rp((Number(o.Subtotal) || 0) + (Number(o.JasaTitip) || 0))}</b></div>` : `<div class="sum-row"><span>Subtotal barang</span><b>${rp(o.Subtotal)}</b></div>
@@ -1947,17 +1949,12 @@ function renderOrderTable() {
 function renderBulk() {
   const st = S.ui.ord;
   const n = st.sel.size;
-  $('#ordBulk').innerHTML = n ? `<div class="bulk-bar"><b>${n} pesanan dipilih</b><select class="form-select form-select-sm" id="bulkStatus" aria-label="Ubah status ke"><option value="">Ubah status ke…</option>${['Baru', 'Dibeli', 'Dikirim', 'Selesai', 'Batal'].map(s => `<option>${s}</option>`).join('')}</select><button class="btn btn-sm btn-white" data-act="bulkApply">Terapkan</button>${can('pengingat') ? '<button class="btn btn-sm btn-glass" data-act="bulkRemind"><i class="bi bi-bell"></i>Kirim pengingat</button>' : ''}<button class="btn btn-sm btn-glass ms-auto" data-act="bulkClear">Batal pilih</button></div>` : '';
+  // v1.4.4: tombol langsung untuk pesanan terpilih — Dibeli, Dikirim (kurir + resi), Selesai, Batal, Hapus Pesanan
+  $('#ordBulk').innerHTML = n ? `<div class="bulk-bar"><b>${n} pesanan dipilih</b><div class="bulk-aksi" role="group" aria-label="Ubah pesanan terpilih">${[['Dibeli', 'bi-bag-check'], ['Dikirim', 'bi-truck'], ['Selesai', 'bi-check2-circle'], ['Batal', 'bi-x-octagon']].map(([s, i]) => `<button class="btn btn-sm btn-white" data-act="bulkStatus" data-s="${s}"><i class="bi ${i}" aria-hidden="true"></i>${s}</button>`).join('')}${can('pesanan.hapus') ? '<button class="btn btn-sm btn-hapus-bulk" data-act="bulkHapus"><i class="bi bi-trash3" aria-hidden="true"></i>Hapus Pesanan</button>' : ''}</div>${can('pengingat') ? '<button class="btn btn-sm btn-glass" data-act="bulkRemind"><i class="bi bi-bell"></i>Kirim pengingat</button>' : ''}<button class="btn btn-sm btn-glass ms-auto" data-act="bulkClear">Batal pilih</button></div>` : '';
 }
 ACT.ordSel = (b, e) => { e.stopPropagation(); const s = S.ui.ord.sel; b.checked ? s.add(b.dataset.id) : s.delete(b.dataset.id); renderBulk(); };
 ACT.ordSelAll = (b, e) => { e.stopPropagation(); $$('[data-act=ordSel]').forEach(c => { c.checked = b.checked; b.checked ? S.ui.ord.sel.add(c.dataset.id) : S.ui.ord.sel.delete(c.dataset.id); }); renderBulk(); };
 ACT.bulkClear = () => { S.ui.ord.sel.clear(); renderOrderTable(); };
-ACT.bulkApply = async b => {
-  const status = $('#bulkStatus').value;
-  if (!status) return toast('Pilih status tujuan.', 'warning');
-  const ids = Array.from(S.ui.ord.sel);
-  await mutate('order.status', { ids, status }, { btn: b, optimistic: () => ids.map(id => upsertLocal('orders', { ID: id, Status: status })), onOk: () => S.ui.ord.sel.clear() });
-};
 ACT.bulkRemind = async b => {
   const ids = Array.from(S.ui.ord.sel).filter(id => (orderById(id) || {}).Sisa > 0);
   if (!ids.length) return toast('Tidak ada pesanan belum lunas yang dipilih.', 'warning');
@@ -2014,12 +2011,14 @@ function openOrderDrawer(id) {
       <div class="cardx p-3 mt-2"><div class="fin-row"><span style="color:var(--mint-ink)"><i class="bi bi-check-circle"></i> Diterima</span><b style="color:var(--mint-ink)">${rp(o.Dibayar)}</b></div><div class="fin-row"><span style="color:var(--danger)"><i class="bi bi-clock"></i> Sisa pelunasan</span><b style="color:var(--danger)">${rp(o.Sisa)}</b></div></div></div>
     ${pays.length ? `<div class="ins-sec"><h4>Pembayaran (${pays.length})</h4>${pays.map(p => `<div class="d-flex justify-content-between align-items-center py-2 gap-2" style="border-bottom:1px solid var(--row-line)"><div><b class="num">${rp(p.Jumlah)}</b><span class="sub small muted">${tglJam(p.Tanggal)} · ${esc((walletById(p.WalletID) || {}).Nama || p.Metode || '')}</span></div><div class="d-flex gap-2 align-items-center">${p.BuktiFileId ? `<button class="icon-btn sm" data-act="previewFile" data-id="${p.BuktiFileId}" data-nama="Bukti ${esc(o.NoOrder)}.jpg" aria-label="Lihat bukti"><i class="bi bi-image"></i></button>` : ''}${pill(p.Status)}</div></div>`).join('')}</div>` : ''}
     ${o.Catatan ? `<div class="note-gold"><b><i class="bi bi-sticky"></i> Catatan</b><br>${esc(o.Catatan)}</div>` : ''}
+    ${teksKirim(o) ? `<div class="ins-sec"><h4>Pengiriman</h4><div class="ins-item" style="grid-template-columns:32px 1fr auto"><span class="q"><i class="bi bi-truck"></i></span><b class="mono">${esc(teksKirim(o))}</b>${o.Resi ? `<button class="icon-btn sm" data-act="copy" data-text="${esc(o.Resi)}" aria-label="Salin nomor resi"><i class="bi bi-copy"></i></button>` : '<span></span>'}</div></div>` : ''}
     ${can('pesanan.status') ? `<div class="ins-sec mt-3"><h4>Ubah status</h4><div class="seg w-100">${['Baru', 'Dibeli', 'Dikirim', 'Selesai', 'Batal'].map(s => `<button class="${o.Status === s ? 'on' : ''} flex-fill" data-act="setStatus" data-id="${o.ID}" data-s="${s}">${s}</button>`).join('')}</div></div>` : ''}`,
     `<div class="d-flex gap-2">${can('invoice') ? `<button class="btn btn-light flex-fill" data-act="${inv ? 'goInvoice' : 'issueInvoice'}" data-id="${o.ID}"><i class="bi bi-file-earmark-text"></i>${inv ? 'Lihat Invoice' : 'Terbitkan Invoice'}</button>` : ''}${can('pembayaran') && o.Sisa > 0 && o.Status !== 'Batal' ? `<button class="btn btn-success flex-fill" data-act="catatBayar" data-id="${o.ID}"><i class="bi bi-cash-stack"></i>Catat Pelunasan</button>` : ''}</div>
      <div class="d-flex gap-2"><a class="btn btn-wa flex-fill" href="${waLink(o.CustomerHP, pesanWA)}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i>Kirim Update WA</a>${can('pesanan.tulis') ? `<button class="btn btn-outline-primary" data-act="editOrder" data-id="${o.ID}" aria-label="Ubah pesanan"><i class="bi bi-pencil"></i>Ubah</button>` : ''}${can('pesanan.hapus') ? `<button class="btn btn-danger-soft" data-act="hapusOrder" data-id="${o.ID}" aria-label="Hapus pesanan"><i class="bi bi-trash3"></i></button>` : ''}</div>`);
 }
 ACT.setStatus = async b => {
   const id = b.dataset.id, s = b.dataset.s;
+  if (s === 'Dikirim') return kirimDialog([id], { onOk: () => { if (S.ui.ordOpen === id) openOrderDrawer(id); } }); // v1.4.4: wajib kurir & resi
   if (s === 'Batal' && !(await confirmDlg({ title: 'Batalkan pesanan?', text: 'Status pesanan menjadi Batal dan tidak lagi dihitung omzet.', ok: 'Batalkan', danger: true, icon: 'bi-x-octagon' }))) return;
   await mutate('order.status', { id, status: s }, { optimistic: () => upsertLocal('orders', { ID: id, Status: s }), onOk: () => { if (S.ui.ordOpen === id) openOrderDrawer(id); } });
   if (S.ui.ordOpen === id) openOrderDrawer(id);
@@ -2048,7 +2047,7 @@ function aForm(el, p, re) {
     const o = orderById(p.id);
     if (!o) { toast('Pesanan tidak ditemukan.', 'error'); return go('a-pesanan'); }
     F = { id: o.ID, edit: true, noOrder: o.NoOrder, customerId: o.CustomerID, alamat: o.Alamat, tripId: o.TripID, status: o.Status, kurir: o.Kurir, ongkir: o.Ongkir, diskon: o.Diskon, catatan: o.Catatan, dibayar: o.Dibayar,
-      tanpaJasa: !!o.TanpaJasa, tanpaOngkir: !!o.TanpaOngkir, pengiriman: o.Pengiriman || 'Kirim', poin: Number(o.PoinDitukar) || 0, poinAsli: o.Status === 'Batal' ? 0 : Number(o.PoinDitukar) || 0, custAsli: o.CustomerID,
+      tanpaJasa: !!o.TanpaJasa, tanpaOngkir: !!o.TanpaOngkir, pengiriman: o.Pengiriman || 'Kirim', kirim: { kurir: o.KurirKirim || '', resi: o.Resi || '' }, poin: Number(o.PoinDitukar) || 0, poinAsli: o.Status === 'Batal' ? 0 : Number(o.PoinDitukar) || 0, custAsli: o.CustomerID,
       voucher: o.KodeVoucher ? { kode: o.KodeVoucher, potonganTetap: Number(o.PotonganVoucher) || 0 } : null,
       items: itemsOf(o.ID).map(i => ({ id: i.ID, nama: i.Nama, varian: i.Varian, link: i.Link, negara: i.Negara, mataUang: i.MataUang, qty: i.Qty, hargaAsli: i.HargaAsli, hargaJual: Number(i.HargaJual) || 0, kurs: i.Kurs, jasaTipe: i.JasaTipe, jasaNilai: i.JasaNilai, custom: i.Custom, itemId: i.ItemID, _lock: true })) };
   } else {
@@ -2070,7 +2069,7 @@ function aForm(el, p, re) {
       <div class="position-relative"><div class="input-icon"><i class="bi bi-search"></i><input class="form-control" id="fCustQ" placeholder="Nama, WhatsApp, atau kode customer" autocomplete="off"></div><div class="tb-results" id="fCustRes"></div></div>
       <div id="fCustBaru" class="mt-3"></div>
       <div class="row g-3 mt-1"><div class="col-sm-6"><label class="form-label">Trip</label><select class="form-select" id="fTrip"><option value="">Tanpa trip</option>${trips.map(t => `<option value="${t.ID}" ${F.tripId === t.ID ? 'selected' : ''}>${esc(t.Kota)} (${tglPendek(t.TglMulai)})</option>`).join('')}</select></div>
-        ${F.edit ? `<div class="col-sm-6"><label class="form-label">Status pesanan</label><select class="form-select" id="fStatus">${['Baru', 'Dibeli', 'Dikirim', 'Selesai', 'Batal'].map(s => `<option ${F.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>` : ''}</div>
+        ${F.edit ? `<div class="col-sm-6"><label class="form-label">Status pesanan</label><select class="form-select" id="fStatus">${['Baru', 'Dibeli', 'Dikirim', 'Selesai', 'Batal'].map(s => `<option ${F.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div><div class="col-12" id="fResiBox"></div>` : ''}</div>
     </div><div class="col-lg-7" id="fCustPanel"></div></div></div></div>
 
   <div class="cardx mb-4"><div class="cardx-head"><h3><span class="sec-num">SEC_02</span>Rincian Item Barang</h3><div class="d-flex gap-2 flex-wrap">${['JPY', 'SGD', 'MYR', 'THB'].map(m => `<span class="tag">1 ${m} = ${fmtKurs(kursOf(m))}</span>`).join('')}</div></div>
@@ -2090,7 +2089,8 @@ function aForm(el, p, re) {
   q.addEventListener('focus', () => formCustSearch(q.value));
   document.addEventListener('click', e => { if (!e.target.closest('#fCustRes, #fCustQ')) $('#fCustRes')?.classList.remove('open'); });
   $('#fTrip').onchange = e => { F.tripId = e.target.value; formAutosave(); };
-  if ($('#fStatus')) $('#fStatus').onchange = e => { F.status = e.target.value; };
+  if ($('#fStatus')) $('#fStatus').onchange = e => { F.status = e.target.value; formResiRender(); };
+  formResiRender(); // v1.4.4: status Dikirim → kurir pengirim & nomor resi
   $('#fCatatan').oninput = e => { F.catatan = e.target.value; formAutosave(); };
   $('#fItems').addEventListener('input', onItemInput);
   $('#fItems').addEventListener('change', onItemInput);
@@ -2235,7 +2235,7 @@ ACT.formKirim = b => {
   const F = S.ui.form; F.pengiriman = b.dataset.v;
   $$('[data-act=formKirim]').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', x === b); });
   $('#fKirimBox').style.display = F.pengiriman === 'Pickup' ? 'none' : ''; $('#fPickupNote').style.display = F.pengiriman === 'Pickup' ? '' : 'none';
-  renderFormSummary(); formAutosave();
+  formResiRender(); renderFormSummary(); formAutosave();
 };
 ACT.formVoucher = async b => {
   const F = S.ui.form; const kode = ($('#fKode') || {}).value || '';
@@ -2320,10 +2320,13 @@ ACT.formSave = async b => {
   const bayar = !F.edit && F.bayar && toNum(F.bayar.jumlah) > 0 ? { jumlah: toNum(F.bayar.jumlah), walletId: F.bayar.walletId, metode: F.bayar.metode || 'Transfer' } : null;
   if (bayar && !bayar.walletId) { $('#fBayarW')?.classList.add('is-invalid'); $('#fBayarW')?.focus(); return toast('Pilih dompet penerima pembayaran awal.', 'warning'); }
   const inv = !!b.dataset.inv;
+  const kirimForm = formResiPayload(); // v1.4.4
+  if (kirimForm === false) return;
   const payload = {
     id: F.id, customerId: F.customerId, customerBaru: F.customerId ? null : F.customerBaru, alamat: F.alamat, tripId: F.tripId, status: F.status,
     kurir: F.pengiriman === 'Pickup' ? '' : F.kurir, ongkir: toNum(F.ongkir), diskon: toNum(F.diskon), catatan: F.catatan, bayarAwal: bayar, terbitkanInvoice: inv, kirimVia: ['wa', 'email'],
     tanpaJasa: !!F.tanpaJasa, tanpaOngkir: !!F.tanpaOngkir, pengiriman: F.pengiriman === 'Pickup' ? 'Pickup' : 'Kirim', kodeVoucher: F.voucher ? F.voucher.kode : '', poinDitukar: formCalc().poin,
+    kirim: kirimForm || undefined,
     items: items.map(i => ({ id: i.id, itemId: i.itemId, varianId: i.varianId || '', nama: i.nama, varian: /^https?:/.test(i.varian || '') ? '' : i.varian, link: i.link, negara: i.negara, mataUang: i.mataUang, qty: Number(i.qty) || 1, hargaAsli: angkaHarga(i.hargaAsli, i.mataUang), kurs: Number(String(i.kurs).replace(',', '.')) || 0, jasaTipe: i.jasaTipe, jasaNilai: angkaJasa(i.jasaNilai, i.jasaTipe), custom: !!i.custom }))
   };
   const { t } = formCalc();
@@ -2332,7 +2335,7 @@ ACT.formSave = async b => {
     btn: b, busyLabel: inv ? 'Menyimpan & membuat PDF…' : 'Menyimpan…', rerenderView: false,
     optimistic: () => {
       const u = upsertLocal('orders', { ID: F.id, NoOrder: F.noOrder || 'Memproses…', Tanggal: F.edit ? (orderById(F.id) || {}).Tanggal : new Date().toISOString(), CustomerID: F.customerId, CustomerNama: c ? c.Nama : F.customerBaru.nama, CustomerHP: c ? c.HP : normHP(F.customerBaru.hp), Status: F.status, Total: t.total, Dibayar: t.dibayar, Sisa: t.sisa, StatusBayar: t.statusBayar, JasaTitip: t.jasa, Subtotal: t.subtotal, Ongkir: t.ongkir, Negara: (items[0] || {}).negara,
-        Pengiriman: payload.pengiriman, TanpaJasa: payload.tanpaJasa, TanpaOngkir: payload.tanpaOngkir, KodeVoucher: payload.kodeVoucher, PotonganVoucher: t.potonganVoucher, PoinDitukar: payload.poinDitukar, PotonganPoin: t.potonganPoin, _pending: true });
+        Pengiriman: payload.pengiriman, TanpaJasa: payload.tanpaJasa, TanpaOngkir: payload.tanpaOngkir, KodeVoucher: payload.kodeVoucher, PotonganVoucher: t.potonganVoucher, PoinDitukar: payload.poinDitukar, PotonganPoin: t.potonganPoin, ...(kirimForm ? { KurirKirim: kirimForm.kurir, Resi: kirimForm.resi } : {}), _pending: true });
       formAutosaveFlush();
       setTimeout(() => go('a-pesanan'), 0); // kembali ke daftar seketika
       return u;
@@ -3066,11 +3069,11 @@ function aVoucher(el, p, re) {
     const q = st.q.toLowerCase();
     const list = vs.filter(v => (!st.f || statusVoucher(v) === st.f) && (!q || (v.Kode + ' ' + (v.DipakaiNama || '') + ' ' + (v.DipakaiNoOrder || '') + ' ' + (v.Catatan || '')).toLowerCase().includes(q)))
       .sort((a, b) => String(b.Dibuat).localeCompare(String(a.Dibuat)));
-    body = `<div class="cardx"><div class="filter-bar"><div class="input-icon grow"><i class="bi bi-search"></i><input class="form-control" id="vcQ" placeholder="Cari kode, customer, atau no. pesanan…" value="${esc(st.q)}"></div>
+    body = `${bcPanelHtml()}<div class="cardx"><div class="filter-bar"><div class="input-icon grow"><i class="bi bi-search"></i><input class="form-control" id="vcQ" placeholder="Cari kode, customer, atau no. pesanan…" value="${esc(st.q)}"></div>
       <div class="chips">${[['', 'Semua'], ['Aktif', 'Aktif'], ['Terpakai', 'Terpakai'], ['Kedaluwarsa', 'Kedaluwarsa'], ['Nonaktif', 'Nonaktif']].map(([v, t]) => `<button class="chip ${st.f === v ? 'on' : ''}" data-act="vcFilter" data-v="${v}">${t}</button>`).join('')}</div></div>
       <div class="cardx-body pt-0">${vcBilahPilih(list)}<div class="tbl-wrap">${list.length ? `<table class="tbl tbl-vc"><thead><tr><th class="cek"><span class="visually-hidden">Pilih</span></th><th>Kode</th><th>Potongan</th><th class="r">Min. belanja</th><th>Masa berlaku</th><th>Status</th><th>Dipakai oleh</th><th></th></tr></thead><tbody>${list.map(v => {
         const s = statusVoucher(v); const bisa = s !== 'Terpakai';
-        return `<tr class="${vcPilihSet().includes(v.ID) ? 'dipilih' : ''}">${vcCekBaris(v)}<td class="nowrap"><b class="mono">${esc(v.Kode)}</b> <button class="icon-btn sm" data-act="copy" data-text="${esc(v.Kode)}" aria-label="Salin kode ${esc(v.Kode)}"><i class="bi bi-copy"></i></button>${v.Catatan ? `<span class="sub clamp-1">${esc(v.Catatan)}</span>` : ''}</td>
+        return `<tr class="${vcPilihSet().includes(v.ID) ? 'dipilih' : ''}">${vcCekBaris(v)}<td class="nowrap"><b class="mono">${esc(v.Kode)}</b> <button class="icon-btn sm" data-act="copy" data-text="${esc(v.Kode)}" aria-label="Salin kode ${esc(v.Kode)}"><i class="bi bi-copy"></i></button>${v.Catatan ? `<span class="sub clamp-1">${esc(v.Catatan)}</span>` : ''}${bcLabelVoucher(v)}</td>
           <td class="nowrap">${esc(labelVoucher(specVoucher(v)))}</td><td class="r num">${v.MinBelanja ? rp(v.MinBelanja) : '-'}</td>
           <td class="nowrap">${tglPendek(v.BerlakuMulai)} – ${tgl(v.BerlakuSampai)}${s === 'Aktif' ? `<span class="sub">${esc(sisaHari(v.BerlakuSampai))}</span>` : ''}</td>
           <td>${pill(s, STATUS_VC[s])}</td>
@@ -3111,6 +3114,7 @@ function aVoucher(el, p, re) {
       if (res.success) { S.settings = res.data.settings; Object.keys(values).forEach(k => { S.boot.settings[k] = S.settings[k]; }); rerender(); }
     };
   }
+  bcSetelahRender(); // v1.4.4: status Broadcast WhatsApp (Super Admin & Owner)
 }
 ACT.vcTab = b => { S.ui.vc.tab = b.dataset.t; S.ui.vc.q = ''; rerender(); };
 ACT.vcFilter = b => { S.ui.vc.f = b.dataset.v; rerender(); };
@@ -4974,11 +4978,13 @@ async function gambarInvoiceJpg(o) {
   tulis('Sisa tagihan', TX + 26, ty, F(800, 22), INK); nominal('Sisa tagihan', F(800, 22), rp(o.Sisa), TX + TW - 26, ty + 2, 800, 28, RED);
 
   let ly = y + 8;
+  if (o.StatusBayar !== 'Lunas') { // v1.4.4: cara pembayaran tidak ditampilkan lagi setelah lunas
   tulis('CARA PEMBAYARAN', P, ly + 22, F(800, 17), MUTED); ly += 56;
   bankAktif().slice(0, 4).forEach(b => { tulis(b.bank + '  ' + fmtNomor(b.noRek), P, ly, F(800, 22), INK); tulis('a.n. ' + String(b.atasNama || '').slice(0, 34), P, ly + 28, F(500, 19), MUTED); ly += 66; });
   ewalletAktif().slice(0, 4).forEach(e => { tulis(e.nama + '  ' + fmtNomor(e.nomor), P, ly, F(800, 22), INK); tulis('a.n. ' + String(e.atasNama || '').slice(0, 34), P, ly + 28, F(500, 19), MUTED); ly += 66; });
   if (qrisAktif().length) { bungkus('QRIS: buka menu Pesanan Saya → Bayar Sekarang, nominal terisi otomatis.', LW, F(600, 20), 3).forEach(l => { tulis(l, P, ly, F(600, 20), warna); ly += 28; }); ly += 10; }
   bungkus('Setelah membayar, unggah bukti di menu Pesanan Saya → Bayar Sekarang agar segera diverifikasi.', LW, F(500, 19), 3).forEach(l => { tulis(l, P, ly, F(500, 19), MUTED); ly += 27; });
+  }
   y = Math.max(y + TH, ly) + 50;
 
   // ── Kaki ──
@@ -4986,6 +4992,8 @@ async function gambarInvoiceJpg(o) {
   tulis('Terima kasih telah titip di ' + (s.appName || 'Jastica') + '!', W / 2, y, F(800, 24), INK, 'center'); y += 36;
   const kontak = [s.bizHP ? 'WhatsApp ' + fmtHP(s.bizHP) : '', s.bizEmail || ''].filter(Boolean).join('  ·  ');
   if (kontak) { tulis(kontak, W / 2, y, F(500, 20), MUTED, 'center'); y += 30; }
+  const kirimJpg = teksKirim(o); // v1.4.4: kurir pengirim - nomor resi
+  if (kirimJpg) { tulis('Pengiriman: ' + kirimJpg, W / 2, y + 4, F(800, 22), INK, 'center'); y += 36; }
   if (s.bizAlamat) { bungkus(s.bizAlamat, W - 2 * P, F(500, 19), 2).forEach(l => { tulis(l, W / 2, y, F(500, 19), MUTED, 'center'); y += 28; }); }
   y += 34;
   c.fillStyle = warna; c.fillRect(0, y, W, 14); y += 14;
@@ -6334,7 +6342,7 @@ async function editorFotoProfil(file) {
 //   berikutnya tampil instan, lalu diperbarui di latar (stale-while-revalidate).
 // Semua fungsi memakai deklarasi function (ter-hoist): bootSalinan() dipanggil saat state S dibuat.
 // ════════════════════════════════════════════════════════
-function versiWeb() { return '1.4.3'; }
+function versiWeb() { return '1.4.4'; }
 
 /** Periksa js/config.js. URL /exec Apps Script bukan rahasia (keamanan dijaga token sesi + cek peran di server). */
 function statusKonfig() {
@@ -6489,6 +6497,7 @@ function vcBilahPilih(list) {
     <span class="vc-bilah-n" id="vcPilihN" ${pil.length ? '' : 'hidden'}>${num(pil.length)} dipilih</span>
     <span class="grow"></span>
     <button class="btn btn-light btn-sm" type="button" data-act="vcPilihBatal" id="vcBatalPilih" ${pil.length ? '' : 'hidden'}>Batal pilih</button>
+    ${bcTombol(pil.length)}
     <button class="btn btn-danger-soft btn-sm" type="button" data-act="vcHapusPilih" id="vcHapusPilih" ${pil.length ? '' : 'disabled'}><i class="bi bi-trash" aria-hidden="true"></i>Hapus terpilih</button></div>`;
 }
 function vcCekBaris(v) {
@@ -6505,6 +6514,7 @@ function vcSegarPilih() {
   const lbl = $('#vcPilihN'); if (lbl) { lbl.hidden = !n; lbl.textContent = num(n) + ' dipilih'; }
   const bt = $('#vcBatalPilih'); if (bt) bt.hidden = !n;
   const h = $('#vcHapusPilih'); if (h) h.disabled = !n;
+  const bc = $('#vcBroadcastBtn'); if (bc) { bc.disabled = !n; bc.title = n ? 'Bagikan voucher terpilih lewat WhatsApp' : 'Centang voucher yang akan dibagikan dulu'; } // v1.4.4
 }
 ACT.vcPilih = b => {
   const pil = vcPilihSet(), id = b.dataset.id;
@@ -6524,4 +6534,344 @@ ACT.vcHapusPilih = async b => {
   if (!(await confirmDlg({ title: `Hapus ${num(ids.length)} voucher?`, text: `${kode.slice(0, 6).join(', ')}${kode.length > 6 ? ` dan ${num(kode.length - 6)} lainnya` : ''}. Kode yang dihapus tidak bisa dipakai lagi.`, ok: 'Hapus semua', danger: true }))) return;
   S.ui.vc.pilih = [];
   await mutate('voucher.hapus', { ids }, { btn: b, busyLabel: 'Menghapus…', optimistic: () => ids.forEach(id => removeLocal('vouchers', id)) });
+};
+
+// ════════════════════════════════════════════════════════
+// BAGIAN 44 (v1.4.4): UPDATE PESANAN TERPILIH (DIBELI / DIKIRIM + RESI / SELESAI / BATAL / HAPUS),
+//                     KURIR & RESI DI INVOICE, BROADCAST WHATSAPP VOUCHER (SUPER ADMIN & OWNER)
+// Semua deklarasi function (ter-hoist) — dipanggil dari modul sebelumnya.
+// ════════════════════════════════════════════════════════
+const KURIR_KIRIM_WEB = ['JNE', 'J&T', 'GoSend', 'Grab Express'];
+const KURIR_RESI_WEB = { 'JNE': true, 'J&T': true };
+const POLA_RESI_WEB = /^[A-Z0-9-]{6,30}$/;
+
+/** "JNE - 2434954359458" (GoSend / Grab Express tanpa resi) — tampil setelah pesanan Dikirim / Selesai. */
+function teksKirim(o) {
+  if (!o || !o.KurirKirim || (o.Status !== 'Dikirim' && o.Status !== 'Selesai')) return '';
+  return o.KurirKirim + (o.Resi ? ' - ' + o.Resi : '');
+}
+/** Tebak kurir dari pilihan customer (mis. "JNE Reguler" → JNE). */
+function tebakKurir(o) {
+  if (o.KurirKirim) return o.KurirKirim;
+  const k = String(o.Kurir || '').toLowerCase();
+  if (/\bjne\b/.test(k)) return 'JNE';
+  if (/j\s*&\s*t|\bjnt\b/.test(k)) return 'J&T';
+  if (/gosend|go-send|go send|gojek/.test(k)) return 'GoSend';
+  if (/grab/.test(k)) return 'Grab Express';
+  return '';
+}
+const resiBersih = v => String(v || '').toUpperCase().replace(/\s+/g, '');
+function pilihKurirHtml(nilai, label) {
+  return `<select class="form-select form-select-sm" data-kurir aria-label="${esc(label)}"><option value="">Pilih kurir…</option>${KURIR_KIRIM_WEB.map(x => `<option ${x === nilai ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select>`;
+}
+/** Tampilkan kolom resi hanya untuk JNE & J&T; GoSend / Grab Express bertanda "tanpa nomor resi". */
+function segarBarisKirim(row) {
+  const k = row.querySelector('[data-kurir]'); if (!k) return;
+  const perlu = !!KURIR_RESI_WEB[k.value];
+  const r = row.querySelector('[data-resi]'); r.hidden = !perlu; r.disabled = !perlu;
+  const t = row.querySelector('[data-tanpa]'); t.hidden = !(k.value && !perlu);
+}
+/** Periksa satu baris pengiriman → { kurir, resi } atau null (pesan galat ditampilkan di baris). */
+function cekBarisKirim(row) {
+  const k = row.querySelector('[data-kurir]'), r = row.querySelector('[data-resi]'), err = row.querySelector('[data-err]');
+  const kurir = k.value, resi = resiBersih(r.value);
+  let msg = '';
+  if (!kurir) msg = 'Pilih kurir pengirim.';
+  else if (KURIR_RESI_WEB[kurir] && !resi) msg = `Nomor resi ${kurir} wajib diisi.`;
+  else if (KURIR_RESI_WEB[kurir] && !POLA_RESI_WEB.test(resi)) msg = 'Nomor resi 6–30 huruf/angka.';
+  err.textContent = msg;
+  k.classList.toggle('is-invalid', !kurir); r.classList.toggle('is-invalid', !!kurir && !!msg);
+  if (msg) return null;
+  return { kurir, resi: KURIR_RESI_WEB[kurir] ? resi : '' };
+}
+
+// ── Jendela "Kirim pesanan": kurir pengirim + nomor resi per pesanan ──
+function kirimDialog(ids, { onOk } = {}) {
+  const os = ids.map(orderById).filter(Boolean);
+  if (!os.length) return toast('Pesanan tidak ditemukan.', 'warning');
+  const kirim = os.filter(o => o.Pengiriman !== 'Pickup');
+  const baris = os.map(o => o.Pengiriman === 'Pickup'
+    ? `<div class="kirim-row" data-kid="${o.ID}" data-pickup="1"><div class="kirim-info"><b>#${esc(o.NoOrder)}</b><span class="sub clamp-1">${esc(o.CustomerNama)}</span></div><div class="small muted"><i class="bi bi-shop" aria-hidden="true"></i> Ambil sendiri — tanpa kurir &amp; resi</div></div>`
+    : `<div class="kirim-row" data-kid="${o.ID}"><div class="kirim-info"><b>#${esc(o.NoOrder)}</b><span class="sub clamp-1">${esc(o.CustomerNama)}${o.Alamat ? ' · ' + esc(o.Alamat) : ''}</span>${o.Kurir ? `<span class="sub">Pilihan customer: ${esc(o.Kurir)}</span>` : ''}</div>
+      <div class="kirim-input">${pilihKurirHtml(tebakKurir(o), 'Kurir pengirim #' + o.NoOrder)}<input class="form-control form-control-sm mono" data-resi value="${esc(o.Resi || '')}" placeholder="Nomor resi" maxlength="30" autocomplete="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase" aria-label="Nomor resi #${esc(o.NoOrder)}"><span class="small muted kirim-tanpa" data-tanpa hidden><i class="bi bi-info-circle" aria-hidden="true"></i> Tanpa nomor resi</span><div class="invalid-feedback d-block" data-err></div></div></div>`).join('');
+  modal({ title: os.length > 1 ? `Kirim ${os.length} pesanan` : `Kirim pesanan #${os[0].NoOrder}`, size: 'lg',
+    body: `${kirim.length ? `<div class="note-box mt-0 mb-3"><i class="bi bi-truck" aria-hidden="true"></i><div><b>JNE</b> & <b>J&amp;T</b> wajib nomor resi. <b>GoSend</b> & <b>Grab Express</b> tanpa nomor resi. Kurir & resi tampil di invoice member setelah disimpan.</div></div>` : ''}
+      ${kirim.length > 1 ? `<div class="mb-3"><span class="form-label d-block">Kurir untuk semua</span><div class="kurir-semua" role="group" aria-label="Kurir untuk semua pesanan">${KURIR_KIRIM_WEB.map(k => `<button type="button" class="chip" data-kurir-semua="${esc(k)}">${esc(k)}</button>`).join('')}</div></div>` : ''}
+      <div class="kirim-list" id="kirimList">${baris}</div>`,
+    foot: `<button class="btn btn-light" data-bs-dismiss="modal">Batal</button><button class="btn btn-primary" id="btnKirimSimpan"><i class="bi bi-truck" aria-hidden="true"></i>Tandai Dikirim${os.length > 1 ? ' (' + os.length + ')' : ''}</button>` });
+  const list = $('#kirimList');
+  $$('.kirim-row', list).forEach(row => {
+    segarBarisKirim(row);
+    const k = row.querySelector('[data-kurir]'); if (!k) return;
+    k.onchange = () => { segarBarisKirim(row); row.querySelector('[data-err]').textContent = ''; k.classList.remove('is-invalid'); if (KURIR_RESI_WEB[k.value]) row.querySelector('[data-resi]').focus(); };
+    row.querySelector('[data-resi]').oninput = e => { e.target.classList.remove('is-invalid'); row.querySelector('[data-err]').textContent = ''; };
+  });
+  $$('[data-kurir-semua]').forEach(b => b.onclick = () => {
+    $$('[data-kurir-semua]').forEach(x => x.classList.toggle('on', x === b));
+    $$('.kirim-row [data-kurir]', list).forEach(s => { s.value = b.dataset.kurirSemua; s.classList.remove('is-invalid'); segarBarisKirim(s.closest('.kirim-row')); });
+    const r = $$('.kirim-row [data-resi]:not([hidden])', list).find(x => !x.value); if (r) r.focus();
+  });
+  $('#btnKirimSimpan').onclick = async e => {
+    const data = {}; let salah = null;
+    $$('.kirim-row', list).forEach(row => {
+      if (row.dataset.pickup) return;
+      const h = cekBarisKirim(row);
+      if (h) data[row.dataset.kid] = h; else if (!salah) salah = row;
+    });
+    if (salah) { (salah.querySelector('.is-invalid') || salah.querySelector('[data-kurir]')).focus(); return toast('Lengkapi kurir & nomor resi yang ditandai.', 'warning'); }
+    const idList = os.map(o => o.ID);
+    await mutate('order.status', { ids: idList, status: 'Dikirim', kirim: data }, { btn: e.currentTarget, busyLabel: 'Menyimpan…',
+      optimistic: () => idList.map(id => upsertLocal('orders', Object.assign({ ID: id, Status: 'Dikirim' }, data[id] ? { KurirKirim: data[id].kurir, Resi: data[id].resi } : {}))),
+      onOk: () => { closeModal(); if (onOk) onOk(); } });
+  };
+}
+
+// ── Bilah pesanan terpilih ──
+ACT.bulkStatus = async b => {
+  const s = b.dataset.s;
+  const ids = Array.from(S.ui.ord.sel).filter(id => orderById(id));
+  if (!ids.length) return toast('Pesanan terpilih tidak ditemukan (mungkin sudah dihapus).', 'warning');
+  if (s === 'Dikirim') return kirimDialog(ids, { onOk: () => { S.ui.ord.sel.clear(); if (S.route === 'a-pesanan') renderOrderTable(); } });
+  if (s === 'Batal' && !(await confirmDlg({ title: `Batalkan ${ids.length} pesanan?`, text: 'Status pesanan menjadi Batal dan tidak lagi dihitung omzet. Poin yang ditukar member dikembalikan.', ok: 'Batalkan pesanan', danger: true, icon: 'bi-x-octagon' }))) return;
+  await mutate('order.status', { ids, status: s }, { btn: b, optimistic: () => ids.map(id => upsertLocal('orders', { ID: id, Status: s })), onOk: () => S.ui.ord.sel.clear() });
+};
+ACT.bulkHapus = async b => {
+  const os = Array.from(S.ui.ord.sel).map(orderById).filter(Boolean);
+  if (!os.length) return toast('Pesanan terpilih tidak ditemukan (mungkin sudah dihapus).', 'warning');
+  const kunci = os.filter(o => paysOf(o.ID).some(p => p.Status === 'Terverifikasi'));
+  const hapus = os.filter(o => !kunci.includes(o));
+  if (!hapus.length) return toast('Pesanan terpilih sudah memiliki pembayaran terverifikasi. Ubah statusnya menjadi Batal.', 'warning');
+  const nama = hapus.map(o => '#' + o.NoOrder);
+  if (!(await confirmDlg({ title: `Hapus ${hapus.length} pesanan?`, text: `${nama.slice(0, 5).join(', ')}${nama.length > 5 ? ` dan ${nama.length - 5} lainnya` : ''} beserta rincian barang, bukti bayar, dan invoicenya dihapus permanen.${kunci.length ? ` ${kunci.length} pesanan yang sudah ada pembayaran terverifikasi dilewati.` : ''}`, ok: 'Hapus permanen', danger: true, icon: 'bi-trash3' }))) return;
+  await mutate('order.hapus', { ids: os.map(o => o.ID) }, { btn: b, busyLabel: 'Menghapus…', optimistic: () => hapus.map(o => removeLocal('orders', o.ID)), onOk: () => S.ui.ord.sel.clear() });
+};
+
+// ── Form Pesanan (mode ubah): status Dikirim → kurir & resi ──
+function formResiRender() {
+  const box = $('#fResiBox'); const F = S.ui.form;
+  if (!box || !F) return;
+  const tampil = F.edit && F.status === 'Dikirim' && F.pengiriman !== 'Pickup';
+  if (!tampil) { box.innerHTML = ''; return; }
+  F.kirim = F.kirim || { kurir: '', resi: '' };
+  const o = orderById(F.id) || {};
+  if (!F.kirim.kurir && o.Status !== 'Dikirim') F.kirim.kurir = tebakKurir(o);
+  box.innerHTML = `<div class="kirim-row kirim-form"><div class="kirim-info"><b><i class="bi bi-truck" aria-hidden="true"></i> Pengiriman</b><span class="sub">JNE & J&amp;T wajib nomor resi; GoSend & Grab Express tanpa resi.</span></div>
+    <div class="kirim-input">${pilihKurirHtml(F.kirim.kurir, 'Kurir pengirim')}<input class="form-control form-control-sm mono" data-resi value="${esc(F.kirim.resi || '')}" placeholder="Nomor resi" maxlength="30" autocomplete="off" style="text-transform:uppercase" aria-label="Nomor resi"><span class="small muted kirim-tanpa" data-tanpa hidden><i class="bi bi-info-circle" aria-hidden="true"></i> Tanpa nomor resi</span><div class="invalid-feedback d-block" data-err></div></div></div>`;
+  const row = box.querySelector('.kirim-row');
+  segarBarisKirim(row);
+  row.querySelector('[data-kurir]').onchange = e => { F.kirim.kurir = e.target.value; e.target.classList.remove('is-invalid'); row.querySelector('[data-err]').textContent = ''; segarBarisKirim(row); formAutosave(); };
+  row.querySelector('[data-resi]').oninput = e => { F.kirim.resi = e.target.value; e.target.classList.remove('is-invalid'); row.querySelector('[data-err]').textContent = ''; formAutosave(); };
+}
+/** Data pengiriman untuk order.simpan: null (tidak perlu), objek { kurir, resi }, atau false (belum valid). */
+function formResiPayload() {
+  const F = S.ui.form;
+  if (!F || !F.edit || F.status !== 'Dikirim' || F.pengiriman === 'Pickup') return null;
+  const awal = (orderById(F.id) || {}).Status;
+  const row = $('#fResiBox .kirim-row');
+  if (!row) return null;
+  if (awal === 'Dikirim' && !row.querySelector('[data-kurir]').value) return null; // pesanan lama yang sudah Dikirim: tidak dipaksa
+  const h = cekBarisKirim(row);
+  if (!h) { row.scrollIntoView({ block: 'center' }); (row.querySelector('.is-invalid') || row.querySelector('[data-kurir]')).focus(); toast('Status Dikirim wajib kurir pengirim (dan nomor resi untuk JNE / J&T).', 'warning'); return false; }
+  return h;
+}
+
+// ════════ Broadcast WhatsApp voucher ════════
+const BC_JEDA_WEB = n => n <= 0 ? 0 : (n % 10 === 0 ? 10 : 1);
+const BC_STATUS_CLS = { Antre: 'menunggu', Mengirim: 'dikirim', Terkirim: 'terkirim', Gagal: 'gagal', Dibatalkan: 'batal', Dilewati: 'nonaktif' };
+const BC_VAR = [['nama', 'Nama member'], ['kode', 'Kode voucher'], ['potongan', 'Nilai potongan'], ['minBelanja', 'Min. belanja'], ['berlaku', 'Berlaku sampai'], ['alasan', 'Alasan terpilih'], ['peringkat', 'Peringkat'], ['event', 'Nama event'], ['app', 'Nama toko'], ['link', 'Alamat aplikasi']];
+const BC_TPL_BAWAAN = 'Halo Kak *{nama}* 🎉\n\nSelamat! Kakak termasuk *{alasan}* di *{app}*.\n\nIni kode voucher khusus untuk Kakak:\n🎟️ *{kode}*\n💸 Potongan {potongan}{minBelanja}\n📅 Berlaku sampai {berlaku}\n\nMasukkan kode ini saat checkout di {link}. Satu kode untuk satu pesanan.\n\nTerima kasih,\n*{app}*';
+
+function bolehBroadcast() { return !!S.me && ['superadmin', 'owner'].includes(S.me.role) && can('voucher.kelola'); }
+function bcState() { return S.ui.bc || (S.ui.bc = { data: null, sig: '', muat: false, t: 0 }); }
+function bcBatchAktif() { const d = bcState().data; return d && d.batch && d.batch.find(x => x.berjalan); }
+function bcVoucherInfo(id) { const d = bcState().data; return d && d.voucher ? d.voucher[id] : null; }
+function bcLinkApp() { try { return location.origin + location.pathname.replace(/index\.html$/, ''); } catch (e) { return ''; } }
+function bcPotongan(v) { return v.Tipe === 'persen' ? String(Math.round((Number(v.Nilai) || 0) * 100) / 100).replace('.', ',') + '%' + (Number(v.MaksPotongan) > 0 ? ' (maks. ' + rp(v.MaksPotongan) + ')' : '') : rp(v.Nilai); }
+function bcIsi(tpl, data) { return String(tpl || '').replace(/\{(\w+)\}/g, (m, k) => data[k] === undefined ? '' : String(data[k])); }
+/** Perkiraan waktu selesai: pesan berikutnya + jeda 1 menit, 10 menit setiap 10 pesan. */
+function bcSelesaiPada(berikutMs, diproses, sisa) {
+  let t = berikutMs;
+  for (let i = 1; i < sisa; i++) t += BC_JEDA_WEB(diproses + i) * 60000;
+  return t;
+}
+function bcDurasiMenit(n) { let m = 0; for (let i = 1; i < n; i++) m += BC_JEDA_WEB(i); return m; }
+function bcWaktu(ms) { const d = new Date(ms); return (ymd(d) === ymd() ? '' : tglPendek(d) + ' ') + jam(d); }
+
+/** Tombol di bilah pilih voucher (Super Admin & Owner). */
+function bcTombol(nPilih) {
+  if (!bolehBroadcast()) return '';
+  return `<button class="btn btn-wa btn-sm" type="button" data-act="vcBroadcast" id="vcBroadcastBtn" ${nPilih ? '' : 'disabled'} title="${nPilih ? 'Bagikan voucher terpilih lewat WhatsApp' : 'Centang voucher yang akan dibagikan dulu'}"><i class="bi bi-whatsapp" aria-hidden="true"></i>Broadcast WhatsApp</button>`;
+}
+/** Panel status broadcast terbaru (di tab Voucher). */
+function bcPanelHtml() {
+  if (!bolehBroadcast()) return '';
+  const d = bcState().data;
+  const b = d && d.batch && d.batch[0];
+  if (!b) return '<div id="bcPanel"></div>';
+  const pct = Math.round((b.terkirim + b.gagal) / Math.max(1, b.total - b.dibatalkan - b.dilewati) * 100);
+  const berhenti = !b.berjalan && b.dibatalkan > 0;
+  const status = b.berjalan ? `<span class="pill st-dikirim">Berjalan</span>` : berhenti ? '<span class="pill st-batal">Dihentikan</span>' : '<span class="pill st-terkirim">Selesai</span>';
+  let jadwal = '';
+  if (b.berjalan && b.berikut) {
+    const nx = Math.max(Date.parse(b.berikut), Date.now());
+    jadwal = ` · pesan berikutnya ± ${bcWaktu(nx)} · selesai ± ${bcWaktu(bcSelesaiPada(nx, b.diproses, b.antre))}`;
+  } else if (b.terakhir) jadwal = ` · terakhir ${relatif(b.terakhir)}`;
+  return `<div class="cardx pad mb-3 bc-panel" id="bcPanel"><div class="bc-head"><span class="bc-ic" aria-hidden="true"><i class="bi bi-whatsapp"></i></span>
+      <div class="min-w-0"><b class="d-block clamp-1">Broadcast WhatsApp · ${esc(b.judul || '')}</b><span class="small muted">${status} oleh ${esc(b.oleh || '-')} · ${tglJam(b.dibuat)}</span></div>
+      <div class="bc-aksi"><button class="btn btn-light btn-sm" data-act="bcRinci"><i class="bi bi-list-ul" aria-hidden="true"></i>Rincian</button>${b.berjalan ? '<button class="btn btn-danger-soft btn-sm" data-act="bcBatal"><i class="bi bi-stop-circle" aria-hidden="true"></i>Hentikan</button>' : ''}${!b.berjalan && b.gagal ? `<button class="btn btn-soft btn-sm" data-act="bcUlang" data-id="${esc(b.batchId)}"><i class="bi bi-arrow-repeat" aria-hidden="true"></i>Kirim ulang ${b.gagal} gagal</button>` : ''}</div></div>
+    <div class="bc-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Kemajuan broadcast"><span style="width:${pct}%"></span></div>
+    <div class="small text-2"><b>${num(b.terkirim)}</b> terkirim dari ${num(b.total)}${b.gagal ? ` · <b style="color:var(--danger)">${num(b.gagal)} gagal</b>` : ''}${b.antre ? ` · ${num(b.antre)} menunggu` : ''}${b.dibatalkan ? ` · ${num(b.dibatalkan)} dibatalkan` : ''}${b.dilewati ? ` · ${num(b.dilewati)} dilewati` : ''}${jadwal}</div>
+    ${d.token ? '' : '<div class="small mt-2" style="color:var(--danger)"><i class="bi bi-exclamation-triangle"></i> Token WhatsApp (Fonnte) belum terpasang — pesan tidak dapat dikirim.</div>'}</div>`;
+}
+/** Keterangan di baris voucher yang sudah dibagikan lewat broadcast. */
+function bcLabelVoucher(v) {
+  if (!bolehBroadcast()) return '';
+  const x = bcVoucherInfo(v.ID);
+  if (!x) return '';
+  const t = x.status === 'Terkirim' ? 'WA terkirim ke ' : x.status === 'Gagal' ? 'WA gagal ke ' : 'Antre WA untuk ';
+  return `<span class="sub bc-label"><i class="bi bi-whatsapp" aria-hidden="true"></i> ${t}${esc(x.nama)}</span>`;
+}
+/** Muat status broadcast; render ulang halaman Voucher hanya bila datanya berubah. */
+async function bcMuat(paksa) {
+  if (!bolehBroadcast()) return;
+  const st = bcState();
+  if (st.muat || (!paksa && Date.now() - st.t < 15000)) return;
+  st.muat = true;
+  const res = await api('broadcast.status', {}, { silent: true });
+  st.muat = false; st.t = Date.now();
+  if (!res.success) return;
+  const sig = JSON.stringify(res.data);
+  if (sig === st.sig) return;
+  st.data = res.data; st.sig = sig;
+  if (S.route === 'a-voucher' && (S.ui.vc || {}).tab === 'voucher' && !document.querySelector('.modal.show')) rerender();
+}
+function bcSetelahRender() {
+  if (!bolehBroadcast() || (S.ui.vc || {}).tab !== 'voucher') return;
+  bcMuat(false);
+  if (!window.__bcTimer) window.__bcTimer = setInterval(() => {
+    if (S.route !== 'a-voucher' || document.visibilityState !== 'visible' || !bcBatchAktif()) return;
+    bcMuat(true);
+  }, 20000);
+}
+
+// ── Jendela Broadcast ──
+ACT.vcBroadcast = async () => {
+  if (!bolehBroadcast()) return toast('Broadcast WhatsApp hanya untuk Super Admin dan Owner.', 'warning');
+  await bcMuat(true);
+  const aktif = bcBatchAktif();
+  if (aktif) return toast(`Masih ada broadcast berjalan (${aktif.terkirim + aktif.gagal}/${aktif.total}). Tunggu selesai atau hentikan dulu.`, 'warning');
+  const pilih = vcPilihSet();
+  const vs = (S.d.vouchers || []).filter(v => pilih.includes(v.ID));
+  const alasanTolak = v => { const s = statusVoucher(v); if (s !== 'Aktif' && s !== 'Belum berlaku') return s.toLowerCase(); const x = bcVoucherInfo(v.ID); return x && x.status === 'Terkirim' ? 'sudah dikirim ke ' + x.nama : ''; };
+  const bisa = vs.filter(v => !alasanTolak(v)).sort((a, b) => String(a.Kode).localeCompare(String(b.Kode)));
+  const tolak = vs.filter(v => alasanTolak(v));
+  if (!bisa.length) return toast('Voucher terpilih tidak bisa dibagikan (nonaktif, kedaluwarsa, atau sudah dikirim). Pilih voucher aktif.', 'warning');
+  const f = { aturan: 'daftar', ukuran: 'total', jumlah: bisa.length, sejak: '', sampai: '', judul: '', pesan: sett().broadcastVoucherTemplate || BC_TPL_BAWAAN, penerima: null, total: 0 };
+  const label = [...new Set(bisa.map(v => labelVoucher(specVoucher(v))))];
+  modal({ title: 'Broadcast WhatsApp voucher', size: 'lg', body: `<form id="fBc" class="row g-3" novalidate>
+      <div class="col-12"><div class="note-box mt-0"><i class="bi bi-ticket-perforated" aria-hidden="true"></i><div><b>${num(bisa.length)} voucher siap dibagikan</b> · ${esc(label.length === 1 ? label[0] : label.length + ' jenis potongan')}. Satu penerima mendapat satu kode.${tolak.length ? `<div class="small mt-1" style="color:var(--danger)">${num(tolak.length)} voucher dilewati: ${tolak.slice(0, 4).map(v => esc(v.Kode + ' (' + alasanTolak(v) + ')')).join(', ')}${tolak.length > 4 ? '…' : ''}</div>` : ''}</div></div></div>
+      <div class="col-12"><span class="form-label d-block">Penerima</span><div class="seg-x" role="radiogroup" aria-label="Aturan penerima"><button type="button" class="on" data-bc-aturan="daftar" role="radio" aria-checked="true"><i class="bi bi-person-plus" aria-hidden="true"></i>Pendaftar pertama</button><button type="button" data-bc-aturan="belanja" role="radio" aria-checked="false"><i class="bi bi-trophy" aria-hidden="true"></i>Pembeli terbanyak</button></div></div>
+      <div class="col-sm-4"><label class="form-label" for="bcJml">Jumlah penerima <span class="req">*</span></label><input class="form-control" id="bcJml" name="jumlah" type="number" min="1" max="${bisa.length}" value="${bisa.length}" inputmode="numeric"><div class="d-flex gap-2 mt-1 flex-wrap">${[10, 20].filter(n => n <= bisa.length).map(n => `<button type="button" class="link-btn small" data-bc-n="${n}">${n} orang</button>`).join('')}</div><div class="form-text">Maks. ${num(bisa.length)} (jumlah voucher terpilih).</div></div>
+      <div class="col-sm-4"><label class="form-label" for="bcSejak" id="bcSejakLbl">Mendaftar sejak</label><input class="form-control" id="bcSejak" name="sejak" type="date"></div>
+      <div class="col-sm-4"><label class="form-label" for="bcSampai" id="bcSampaiLbl">Mendaftar sampai</label><input class="form-control" id="bcSampai" name="sampai" type="date"><div class="form-text">Kosongkan = semua waktu.</div></div>
+      <div class="col-12" id="bcUkurBox" hidden><span class="form-label d-block">Urutkan pembeli berdasarkan</span><div class="seg-x" role="radiogroup" aria-label="Ukuran pembeli terbanyak"><button type="button" class="on" data-bc-ukur="total" role="radio" aria-checked="true"><i class="bi bi-cash-stack" aria-hidden="true"></i>Total belanja (Rp)</button><button type="button" data-bc-ukur="jumlah" role="radio" aria-checked="false"><i class="bi bi-bag" aria-hidden="true"></i>Jumlah pesanan</button></div><div class="form-text">Pesanan berstatus Batal tidak dihitung.</div></div>
+      <div class="col-12"><label class="form-label" for="bcJudul">Nama event (opsional)</label><input class="form-control" id="bcJudul" name="judul" maxlength="60" placeholder="Contoh: Promo 11.11 untuk 20 pendaftar pertama"></div>
+      <div class="col-12"><div class="d-flex align-items-center gap-2 mb-1"><b>Daftar penerima</b><span class="small muted" id="bcInfo">Memuat…</span></div><div class="bc-penerima" id="bcList"><div class="small muted p-3">Memuat daftar penerima…</div></div></div>
+      <div class="col-12"><label class="form-label" for="bcPesan">Isi pesan WhatsApp <span class="req">*</span></label><textarea class="form-control" id="bcPesan" name="pesan" rows="8" maxlength="1000">${esc(f.pesan)}</textarea>
+        <div class="bc-var mt-2">${BC_VAR.map(([k, t]) => `<button type="button" class="chip" data-bc-var="${k}" title="${esc(t)}">{${k}}</button>`).join('')}<button type="button" class="link-btn small ms-1" data-bc-reset>Kembalikan bawaan</button></div>
+        <div class="form-text">Wajib memuat <b>{kode}</b>. <b>*teks*</b> = tebal di WhatsApp.</div></div>
+      <div class="col-12"><span class="form-label d-block">Pratinjau pesan pertama</span><div class="bc-pratinjau" id="bcPrev"></div></div>
+      <div class="col-12"><div class="note-box mt-0"><i class="bi bi-clock-history" aria-hidden="true"></i><div id="bcJadwal"></div></div></div>
+    </form>`,
+    foot: '<button class="btn btn-light" data-bs-dismiss="modal">Batal</button><button class="btn btn-wa-solid" id="btnBcMulai" disabled><i class="bi bi-send" aria-hidden="true"></i>Mulai broadcast</button>' });
+  const fm = $('#fBc'), btn = $('#btnBcMulai');
+  const nPakai = () => Math.min(f.jumlah, f.penerima ? f.penerima.length : 0);
+  const segarJadwal = () => {
+    const n = nPakai(), m = bcDurasiMenit(n);
+    $('#bcJadwal').innerHTML = n ? `Dikirim otomatis dari server: <b>1 pesan per menit</b>, dan <b>jeda 10 menit setiap 10 pesan</b>. ${num(n)} pesan selesai ± ${m < 60 ? m + ' menit' : Math.floor(m / 60) + ' jam ' + (m % 60) + ' menit'} (sekitar pukul ${bcWaktu(Date.now() + m * 60000)}). Aplikasi boleh ditutup selama pengiriman.` : 'Belum ada penerima yang cocok.';
+    btn.disabled = !n;
+    btn.innerHTML = `<i class="bi bi-send" aria-hidden="true"></i>Mulai broadcast${n ? ' · ' + num(n) + ' WA' : ''}`;
+  };
+  const segarPrev = () => {
+    const p = f.penerima && f.penerima[0], v = bisa[0];
+    const n = nPakai() || f.jumlah;
+    const alasan = f.aturan === 'belanja' ? n + ' pembeli terbanyak' : n + ' pendaftar pertama';
+    const teks = bcIsi(f.pesan, { nama: p ? p.nama : 'Budi', kode: v.Kode, potongan: bcPotongan(v), minBelanja: Number(v.MinBelanja) > 0 ? ' (min. belanja ' + rp(v.MinBelanja) + ')' : '', berlaku: v.BerlakuSampai ? tgl(v.BerlakuSampai) : '-', alasan, peringkat: 1, event: f.judul || 'Broadcast', app: sett().appName || 'Jastica', link: bcLinkApp() });
+    $('#bcPrev').innerHTML = esc(teks).replace(/\*([^*\n]+)\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+  };
+  const segarDaftar = () => {
+    const p = f.penerima || [];
+    $('#bcInfo').textContent = f.penerima ? (p.length < f.jumlah ? `${num(p.length)} orang cocok (kurang dari ${num(f.jumlah)}) — broadcast dikirim ke ${num(p.length)} orang` : `${num(Math.min(f.jumlah, p.length))} orang · total yang cocok ${num(f.total)}`) : 'Memuat…';
+    $('#bcList').innerHTML = p.length ? `<table class="tbl tbl-sm"><thead><tr><th>#</th><th>Member</th><th>WhatsApp</th><th>Keterangan</th><th>Kode</th></tr></thead><tbody>${p.slice(0, f.jumlah).map((r, i) => `<tr><td class="num">${i + 1}</td><td><b class="clamp-1">${esc(r.nama)}</b></td><td class="nowrap">${esc(fmtHP(r.hp))}</td><td><span class="small muted">${esc(r.info)}</span></td><td><b class="mono">${esc(bisa[i] ? bisa[i].Kode : '-')}</b></td></tr>`).join('')}</tbody></table>`
+      : `<div class="small muted p-3">${f.penerima ? (f.aturan === 'belanja' ? 'Belum ada pembeli yang cocok dengan periode ini.' : 'Belum ada member terdaftar yang cocok dengan periode ini.') : 'Memuat daftar penerima…'}</div>`;
+    segarJadwal(); segarPrev();
+  };
+  let urut = 0;
+  const muatPenerima = async () => {
+    const no = ++urut; f.penerima = null; btn.disabled = true; segarDaftar();
+    const res = await api('broadcast.pratinjau', { aturan: f.aturan, ukuran: f.ukuran, jumlah: f.jumlah, sejak: f.sejak, sampai: f.sampai }, { silent: true });
+    if (no !== urut || !$('#fBc')) return;
+    if (!res.success) { f.penerima = []; f.total = 0; segarDaftar(); $('#bcInfo').textContent = res.message || 'Gagal memuat penerima.'; return; }
+    f.penerima = res.data.penerima || []; f.total = res.data.total || 0; segarDaftar();
+  };
+  const muatTunda = debounce(muatPenerima, 350);
+  $$('[data-bc-aturan]', fm).forEach(x => x.onclick = () => {
+    f.aturan = x.dataset.bcAturan;
+    $$('[data-bc-aturan]', fm).forEach(y => { y.classList.toggle('on', y === x); y.setAttribute('aria-checked', y === x); });
+    $('#bcUkurBox').hidden = f.aturan !== 'belanja';
+    $('#bcSejakLbl').textContent = f.aturan === 'belanja' ? 'Pesanan sejak' : 'Mendaftar sejak';
+    $('#bcSampaiLbl').textContent = f.aturan === 'belanja' ? 'Pesanan sampai' : 'Mendaftar sampai';
+    muatPenerima();
+  });
+  $$('[data-bc-ukur]', fm).forEach(x => x.onclick = () => {
+    f.ukuran = x.dataset.bcUkur;
+    $$('[data-bc-ukur]', fm).forEach(y => { y.classList.toggle('on', y === x); y.setAttribute('aria-checked', y === x); });
+    muatPenerima();
+  });
+  const setJumlah = v => { f.jumlah = Math.max(1, Math.min(bisa.length, Math.round(Number(v) || 0) || 1)); };
+  fm.jumlah.oninput = () => { if (fm.jumlah.value === '') return; setJumlah(fm.jumlah.value); muatTunda(); };
+  fm.jumlah.onchange = () => { setJumlah(fm.jumlah.value); fm.jumlah.value = f.jumlah; muatTunda(); };
+  $$('[data-bc-n]', fm).forEach(x => x.onclick = () => { setJumlah(x.dataset.bcN); fm.jumlah.value = f.jumlah; muatPenerima(); });
+  fm.sejak.onchange = () => { f.sejak = fm.sejak.value; muatPenerima(); };
+  fm.sampai.onchange = () => { f.sampai = fm.sampai.value; muatPenerima(); };
+  fm.judul.oninput = () => { f.judul = fm.judul.value.trim(); segarPrev(); };
+  fm.pesan.oninput = () => { f.pesan = fm.pesan.value; fm.pesan.classList.remove('is-invalid'); segarPrev(); };
+  $$('[data-bc-var]', fm).forEach(x => x.onclick = () => {
+    const t = fm.pesan, s = t.selectionStart ?? t.value.length, e = t.selectionEnd ?? t.value.length, ins = '{' + x.dataset.bcVar + '}';
+    t.value = t.value.slice(0, s) + ins + t.value.slice(e); t.focus(); t.setSelectionRange(s + ins.length, s + ins.length);
+    f.pesan = t.value; segarPrev();
+  });
+  $('[data-bc-reset]', fm).onclick = () => { fm.pesan.value = f.pesan = BC_TPL_BAWAAN; segarPrev(); };
+  btn.onclick = async e => {
+    const pesan = fm.pesan.value.trim();
+    if (pesan.indexOf('{kode}') === -1) { fm.pesan.classList.add('is-invalid'); fm.pesan.focus(); return toast('Isi pesan wajib memuat {kode}.', 'warning'); }
+    if (fm.sejak.value && fm.sampai.value && fm.sampai.value < fm.sejak.value) return fieldErr(fm, 'sampai', 'Tidak boleh sebelum tanggal mulai.');
+    const n = nPakai();
+    if (!n) return toast('Belum ada penerima yang cocok.', 'warning');
+    const res = await mutate('broadcast.mulai', { voucherIds: bisa.slice(0, n).map(v => v.ID), aturan: f.aturan, ukuran: f.ukuran, jumlah: n, sejak: f.sejak, sampai: f.sampai, judul: f.judul, pesan, link: bcLinkApp() },
+      { btn: e.currentTarget, busyLabel: 'Memulai broadcast…', rerenderView: false });
+    if (res.success) { closeModal(); S.ui.vc.pilih = []; S.settings.broadcastVoucherTemplate = pesan; await bcMuat(true); rerender(); }
+  };
+  segarDaftar();
+  muatPenerima();
+};
+ACT.bcBatal = async b => {
+  const a = bcBatchAktif(); if (!a) return;
+  if (!(await confirmDlg({ title: 'Hentikan broadcast?', text: `${num(a.antre)} pesan yang belum terkirim dibatalkan. Pesan yang sudah terkirim tidak bisa ditarik; vouchernya tetap aktif.`, ok: 'Hentikan', danger: true, icon: 'bi-stop-circle' }))) return;
+  const res = await mutate('broadcast.batal', { batchId: a.batchId }, { btn: b, busyLabel: 'Menghentikan…', rerenderView: false });
+  if (res.success) await bcMuat(true);
+};
+ACT.bcUlang = async b => {
+  const res = await mutate('broadcast.ulang', { batchId: b.dataset.id }, { btn: b, busyLabel: 'Memproses…', rerenderView: false });
+  if (res.success) await bcMuat(true);
+};
+ACT.bcRinci = async (b, e, batchId) => {
+  const res = await api('broadcast.status', batchId ? { batchId } : {}, { silent: true });
+  if (!res.success) return toast(res.message || 'Gagal memuat rincian.', 'error');
+  const d = res.data, cur = (d.batch || []).find(x => x.batchId === d.batchId) || {};
+  const html = `${(d.batch || []).length > 1 ? `<div class="mb-3"><label class="form-label" for="bcPilihBatch">Broadcast</label><select class="form-select" id="bcPilihBatch">${d.batch.map(x => `<option value="${esc(x.batchId)}" ${x.batchId === d.batchId ? 'selected' : ''}>${esc(x.judul)} · ${tglJam(x.dibuat)} · ${num(x.terkirim)}/${num(x.total)} terkirim</option>`).join('')}</select></div>` : ''}
+    <div class="small text-2 mb-2">${esc(cur.judul || '')} · oleh ${esc(cur.oleh || '-')} · <b>${num(cur.terkirim || 0)}</b> terkirim, ${num(cur.gagal || 0)} gagal, ${num(cur.antre || 0)} menunggu</div>
+    <div class="tbl-wrap bc-rinci"><table class="tbl tbl-sm"><thead><tr><th>#</th><th>Member</th><th>Kode</th><th>Status</th><th>Waktu / keterangan</th></tr></thead><tbody>${(d.rinci || []).map(r => `<tr><td class="num">${r.urutan}</td><td><b class="clamp-1">${esc(r.nama)}</b><span class="sub">${esc(fmtHP(r.hp))} · ${esc(r.alasan || '')}</span></td><td><b class="mono">${esc(r.kode)}</b></td><td>${pill(r.status, BC_STATUS_CLS[r.status])}</td><td class="small">${r.waktu ? tglJam(r.waktu) : '-'}${r.ket ? `<span class="sub" style="color:${r.status === 'Gagal' ? 'var(--danger)' : 'var(--muted)'}">${esc(r.ket)}</span>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+  modal({ title: 'Rincian broadcast WhatsApp', size: 'lg', body: html, foot: '<button class="btn btn-light" data-bs-dismiss="modal">Tutup</button>' });
+  const sel = $('#bcPilihBatch'); if (sel) sel.onchange = () => ACT.bcRinci(null, null, sel.value);
 };

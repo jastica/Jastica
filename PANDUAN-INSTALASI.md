@@ -1,6 +1,6 @@
 # Jastica — Panduan Instalasi & Deployment (Apps Script + GitHub Pages)
 
-Versi **1.4.4**. Jastica adalah aplikasi web satu halaman (SPA) untuk jasa titip Jakarta, Malaysia, Singapura, Jepang dan Thailand: pesanan, konversi kurs ke IDR, jasa titip, dompet kas, pembayaran (transfer, QRIS & e-wallet), invoice PDF dan gambar JPG ke WhatsApp, pengingat tagihan, poin & voucher member, katalog dengan nama barang otomatis dari foto, keamanan masuk (OTP pengurus, member masuk dengan PIN 6 digit, keluar otomatis), laporan, harga jual katalog dan rincian keuntungan, sisa stok, ulasan member, impor barang dari Excel, serta galeri foto barang, varian warna/ukuran/berat, dan jasa titip per barang.
+Versi **1.4.5**. Jastica adalah aplikasi web satu halaman (SPA) untuk jasa titip Jakarta, Malaysia, Singapura, Jepang dan Thailand: pesanan, konversi kurs ke IDR, jasa titip, dompet kas, pembayaran (transfer, QRIS & e-wallet), invoice PDF dan gambar JPG ke WhatsApp, pengingat tagihan, poin & voucher member, katalog dengan nama barang otomatis dari foto, keamanan masuk (login Google wajib untuk pengurus, OTP pengurus, member masuk dengan PIN 6 digit, keluar otomatis), laporan, harga jual katalog dan rincian keuntungan, sisa stok, ulasan member, impor barang dari Excel, serta galeri foto barang, varian warna/ukuran/berat, dan jasa titip per barang.
 
 ## Arsitektur (mulai 1.4)
 
@@ -25,14 +25,14 @@ https://USERNAME.github.io/NAMA-REPO/               https://script.google.com/ma
 
 ---
 
-## 0. Memperbarui dari versi sebelumnya (1.0.x sampai 1.4.3)
+## 0. Memperbarui dari versi sebelumnya (1.0.x sampai 1.4.4)
 
 Lewati bagian ini jika memasang dari nol.
 
-**Dari 1.4.0 sampai 1.4.3 (sudah di GitHub Pages).**
+**Dari 1.4.0 sampai 1.4.4 (sudah di GitHub Pages).**
 1. Apps Script: ganti isi file **`Kode`** dengan `Kode.gs` baru → **Terapkan → Kelola deployment → ✏️ Edit → Versi: Versi baru → Terapkan**. URL `/exec` tetap sama.
-2. Frontend: ekstrak `jastica-web-update.zip` ke folder proyek Anda (misalnya `Documents\jastica-web`) dan pilih **timpa/replace**. Paket pembaruan **tidak berisi `js/config.js`**, jadi `GAS_URL` Anda tetap aman.
-3. Dari folder itu: `git add .` → `git commit -m "Jastica 1.4.4"` → `git push`. Tunggu 1–2 menit, lalu **Ctrl+Shift+R**.
+2. Frontend: ekstrak `jastica-web-update.zip` ke folder proyek Anda (misalnya `Documents\jastica-web`) dan pilih **timpa/replace**. Paket pembaruan **tidak berisi `js/config.js`**, jadi `GAS_URL` Anda tetap aman. Versi 1.4.5 mengubah `index.html`, `css/style.css`, dan `js/app.js`, jadi pastikan ketiganya ikut ter-push.
+3. Dari folder itu: `git add .` → `git commit -m "Jastica 1.4.5"` → `git push`. Tunggu 1–2 menit, lalu **Ctrl+Shift+R**.
 
 **Pindah ke GitHub Pages (dari 1.3.x atau lebih lama), tanpa aplikasi berhenti.** Database, akun, dan semua data tetap sama; yang berubah hanya tempat tampilan aplikasi dibuka. Setiap deployment Apps Script terkunci pada versinya sendiri, jadi alamat lama tetap melayani aplikasi lama sampai alamat GitHub Pages siap.
 
@@ -42,7 +42,7 @@ Lewati bagian ini jika memasang dari nol.
 4. Buka URL baru itu di browser. Hasil yang benar berupa teks JSON yang memuat `"API Jastica aktif"`.
 5. Pasang frontend di GitHub Pages dengan URL baru tadi (bagian 3.2), lalu uji: masuk sebagai pengurus dan sebagai member.
 6. Bagikan alamat `https://USERNAME.github.io/NAMA-REPO/` ke member dan pengurus. Karena alamatnya berubah, setiap orang perlu **masuk sekali lagi** di alamat baru (sesi lama tidak terbawa). Data, PIN, dan kata sandi tidak berubah.
-7. Setelah semua pindah, nonaktifkan alamat lama: **Terapkan → Kelola deployment** → pilih deployment lama → **Arsipkan**. Jika aplikasi pernah ditanam di Blogger, ganti alamatnya (bagian 20).
+7. Setelah semua pindah, nonaktifkan alamat lama: **Terapkan → Kelola deployment** → pilih deployment lama → **Arsipkan**. Jika aplikasi pernah ditanam di Blogger, ganti alamatnya (bagian 21).
 
 **Perubahan database** terjadi otomatis saat permintaan pertama ke server. Data lama tidak diubah dan **tidak perlu** menjalankan `setupAppEnvironment` lagi:    - Dari 1.0.x: sheet **Vouchers** dan **PoinLog** ditambahkan, serta kolom baru di **Customers** dan **Orders**.
    - Dari 1.1.x: tidak ada sheet atau kolom baru untuk 1.2.
@@ -53,6 +53,7 @@ Lewati bagian ini jika memasang dari nol.
    - Dari 1.3.3: sheet **Reviews** (ulasan), kolom **Stok** dan **StokSejak** di sheet **Items**, serta folder Drive **Foto Ulasan** dibuat otomatis. Barang lama tidak dibatasi stoknya sampai Anda mengisi sisa stok.
    - Dari 1.3.5 dan 1.4.0: tidak ada sheet, kolom, atau properti baru untuk 1.4.0–1.4.3.
    - Dari 1.4.3 ke 1.4.4: kolom **KurirKirim** dan **Resi** ditambahkan di sheet **Orders**, dan sheet **Broadcast** (antrean Broadcast WhatsApp voucher) dibuat otomatis. Data lama tidak berubah.
+   - Dari 1.4.4 ke 1.4.5: tidak ada sheet, kolom, atau baris baru. Saklar baru **Wajib login Google** mati secara bawaan, jadi cara masuk tidak berubah sampai Super Admin menyalakannya (bagian 18). Trigger penghangat **`jobHangat`** dipasang otomatis saat pengurus membuka panel.
    - Dari 1.3.4: kolom **PinHash**, **PinSalt**, **Foto** di sheet **Users** serta **FotoLain**, **Varian**, **JasaItem** di sheet **Items** dibuat otomatis. Member lama tetap bisa masuk: PIN masuk cepat lama langsung menjadi PIN akun, atau masuk sekali dengan kata sandi lama lalu wajib membuat PIN 6 angka (lihat bagian 13).
 4. Hal yang terjadi otomatis saat pembaruan:
    - Kurir **"Ambil di tempat"** dihapus dari daftar kurir, karena sekarang sudah ada pilihan **Ambil sendiri (pick up)** bawaan. Kurir lain tidak berubah.
@@ -81,7 +82,7 @@ Jangan mengganti nama sheet `Vouchers`, `PoinLog`, dan `PinPerangkat` di spreads
 
 | File di Apps Script | Nomor baris | Isi baris itu |
 |---|---|---|
-| `Kode` | 4668 | `}` |
+| `Kode` | 4839 | `}` |
 
 Jika angkanya berbeda, salinan belum lengkap. Ulangi Ctrl+A → Ctrl+V.
 
@@ -174,7 +175,7 @@ git push -u origin main
 
 **h. Aktifkan GitHub Pages.** Di repository: **Settings → Pages** → *Source*: **Deploy from a branch** → *Branch*: **main** dan **/ (root)** → **Save**. Centang **Enforce HTTPS** (wajib untuk kamera). Tunggu 1–2 menit sampai muncul *"Your site is live at https://USERNAME.github.io/NAMA-REPO/"*.
 
-**i. Buka situsnya.** Halaman beranda Jastica tampil dan memuat katalog. Bila muncul layar penjelasan (misalnya "Konfigurasi belum lengkap"), ikuti langkah di layar itu atau lihat bagian 23.
+**i. Buka situsnya.** Halaman beranda Jastica tampil dan memuat katalog. Bila muncul layar penjelasan (misalnya "Konfigurasi belum lengkap"), ikuti langkah di layar itu atau lihat bagian 24.
 
 **Saat frontend diubah** (misalnya mengganti `GAS_URL` atau memasang versi baru): salin file baru ke folder yang sama, lalu dari folder itu:
 
@@ -604,7 +605,52 @@ Baris voucher menandai **WA terkirim ke …**. Voucher yang sudah terkirim tidak
 
 Broadcast memakai trigger **`jobBroadcast`** (tiap 1 menit). Trigger ini dipasang otomatis saat broadcast dimulai dan dilepas otomatis saat antrean habis. Jangan menghapusnya selama broadcast berjalan.
 
-## 18. Script Properties (Setelan proyek → Properti skrip)
+## 18. Fitur baru versi 1.4.5
+
+**Tulisan di kotak login.** Kolom pertama di halaman **Masuk** kini bertuliskan **08XXXX**. Member tetap mengetik nomor WhatsApp; pengurus tetap boleh mengetik username.
+
+**Login Google wajib untuk pengurus.** Bila dinyalakan Super Admin, semua peran pengurus (Super Admin, Owner, Admin Keuangan, Staff) masuk dalam dua langkah:
+1. Username / nomor + kata sandi seperti biasa.
+2. **Lanjutkan dengan Google** memakai akun Google yang emailnya **sama dengan email akun itu di Manajemen User**. Akun Google lain ditolak.
+
+Hal yang perlu diketahui:
+- Bila **OTP pengurus** juga menyala, kode OTP diminta setelah langkah Google.
+- Member tidak terpengaruh: tetap nomor WhatsApp + PIN.
+- Pengurus yang sedang masuk tidak dikeluarkan saat saklar dinyalakan; aturan baru berlaku di login berikutnya.
+- Pengurus yang belum punya email di Manajemen User tidak bisa masuk sampai emailnya diisi. Kartu pengaturan menampilkan daftar kesiapan setiap pengurus.
+- Token Google diperiksa di server (penerima token = Client ID aplikasi ini, penerbit Google, email terverifikasi, belum kedaluwarsa). Token tidak pernah ditulis ke log audit.
+- 5 kali gagal di langkah Google → harus mengulang dari kata sandi.
+
+**Cara menyalakan (Super Admin, sekali saja):**
+
+a. **Buat Client ID Google.**
+   1. Buka [console.cloud.google.com/auth/clients](https://console.cloud.google.com/auth/clients). Pilih atau buat project (boleh project apa saja milik Anda).
+   2. Bila diminta, isi **Branding**: nama aplikasi (misalnya *Jastica*) dan email dukungan, lalu simpan. Di **Audience**, pilih **External**, lalu tekan **Publish app** agar semua akun pengurus bisa masuk. Login Google hanya memakai email & profil dasar, yang tidak memerlukan verifikasi Google. (Alternatif: biarkan *Testing* dan tambahkan email setiap pengurus di **Test users**.)
+   3. **Clients → Create client**: **Application type: Web application**.
+   4. **Authorized JavaScript origins**: isi alamat aplikasi Anda **tanpa** nama repo dan tanpa garis miring di akhir, misalnya `https://USERNAME.github.io` (atau domain sendiri, misalnya `https://jastip.namausaha.com`). Alamat yang benar juga tampil di kartu pengaturan dengan tombol salin. **Authorized redirect URIs** dikosongkan.
+   5. Tekan **Create**, lalu salin **Client ID** (berakhiran `.apps.googleusercontent.com`). Client secret tidak dipakai.
+
+b. Di Jastica: **Pengaturan → WhatsApp & keamanan → Wajib login Google untuk pengurus**. Tempel Client ID → **Simpan**. Nilainya disimpan di Script Properties (`GOOGLE_CLIENT_ID`), tidak di kode frontend.
+
+c. Isi **email Google** setiap pengurus di **Manajemen User** (kolom *Email (akun Google)*), termasuk email Super Admin sendiri.
+
+d. Tekan **Tampilkan tombol Google** lalu masuk dengan akun Google Anda. Tunggu pesan hijau *cocok*. Uji ini mencegah Anda terkunci.
+
+e. Dalam 30 menit setelah uji berhasil, nyalakan saklar **Wajib login Google**. Konfirmasi menyebutkan pengurus yang belum punya email Google.
+
+Selama saklar aktif, Client ID tidak bisa diganti atau dihapus. Untuk menggantinya: matikan saklar → simpan Client ID baru → uji lagi → nyalakan.
+
+**Terkunci?** (misalnya Client ID salah atau email Super Admin keliru): buka editor Apps Script, jalankan fungsi **`matikanLoginGoogle`**, lalu masuk dengan kata sandi seperti biasa dan perbaiki pengaturannya.
+
+**Buka aplikasi lebih cepat.**
+- Data awal (katalog, kurs, pengaturan) kini diminta dari server **bersamaan** dengan unduhan tampilan, bukan setelah tampilan selesai dimuat.
+- `app.js` dan `style.css` diperkecil otomatis saat dibangun.
+- Grafik (Chart.js) dan kalender (flatpickr) baru dimuat saat dibuka di Beranda panel atau Laporan.
+- Huruf, ikon, dan bendera tidak lagi menahan tampilan pertama.
+- Server menyimpan jawaban data awal per versi data. Trigger **`jobHangat`** (tiap 5 menit) menyiapkannya di latar, sehingga pengunjung tidak menunggu pembacaan Sheets. Trigger ini dipasang otomatis saat pengurus membuka panel; bisa juga lewat `pasangTrigger`.
+- Isi aplikasi tidak berubah: barang, stok, harga, dan pengaturan baru tetap langsung terlihat.
+
+## 19. Script Properties (Setelan proyek → Properti skrip)
 
 Semua rahasia hanya disimpan di sini, tidak di kode, Sheets, atau browser.
 
@@ -616,15 +662,16 @@ Semua rahasia hanya disimpan di sini, tidak di kode, Sheets, atau browser.
 | `FONNTE_TOKEN` | **Anda**, lewat Pengaturan → WhatsApp & keamanan | Ditampilkan tersamar; tidak pernah dikirim ke browser. |
 | `GEMINI_API_KEY` | **Anda**, lewat Pengaturan → WhatsApp & keamanan → Kunci AI Gemini | Untuk nama barang otomatis dari foto. Ditampilkan tersamar. |
 | `GEMINI_MODEL` | Opsional, lewat *Pengaturan lanjutan* | Kosongkan agar model dipilih otomatis. |
+| `GOOGLE_CLIENT_ID` | **Anda**, lewat Pengaturan → WhatsApp & keamanan → Wajib login Google | Client ID OAuth (jenis Web application) untuk login Google pengurus (bagian 18). Bukan rahasia, tetapi tidak ditulis di kode. Terkunci selama saklar aktif. |
 | `GEMINI_MODEL_AKTIF` | Otomatis | Model Gemini terakhir yang berhasil dipakai. Boleh dihapus; akan dipilih ulang. |
-| `SKEMA_VER` | Otomatis | Versi struktur database (1.6). Dipakai untuk pembaruan otomatis. Jangan dihapus. |
+| `SKEMA_VER` | Otomatis | Versi struktur database (1.7). Dipakai untuk pembaruan otomatis. Jangan dihapus. |
 | `VER_*`, `DATA_VER`, `SEQ_*`, `SAMPLE_*` | Otomatis | Versi cache, nomor urut pesanan/invoice, penanda data contoh. Jangan dihapus. |
 
 Versi 1.3 sampai 1.3.5 tidak menambah properti yang perlu Anda isi (1.3.4 hanya menambah `FOLDER_ULASAN` yang dibuat otomatis). Saklar OTP pengurus dan template pesan disimpan di sheet **Pengaturan** (bukan rahasia); kode OTP dan PIN member hanya disimpan sebagai hash.
 
 Siapa pun yang punya akses **edit** ke proyek Apps Script bisa melihat Script Properties, jadi jangan menambah editor sembarangan.
 
-## 19. Fungsi pemeliharaan (jalankan dari editor)
+## 20. Fungsi pemeliharaan (jalankan dari editor)
 
 Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjung web.
 
@@ -633,10 +680,11 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 | `resetAksesSuperAdmin` | Sandi Super Admin hilang → sandi acak baru dicetak di log, wajib diganti saat login. |
 | `rotasiSecretSesi` | Keluarkan **semua** pengguna dari semua perangkat (misalnya jika curiga ada kebocoran). |
 | `hapusDataContoh` | Hapus data contoh hasil setup. |
-| `pasangTrigger` | Pasang ulang 3 trigger jika terhapus. (Trigger `jobBroadcast` dipasang & dilepas otomatis oleh Broadcast WhatsApp.) |
+| `pasangTrigger` | Pasang ulang 4 trigger jika terhapus: kurs, pengingat, cadangan, dan penghangat `jobHangat` (tiap 5 menit). (Trigger `jobBroadcast` dipasang & dilepas otomatis oleh Broadcast WhatsApp.) |
 | `matikanOtpPengurus` | Matikan OTP wajib pengurus bila kode tidak sampai dan Super Admin terkunci (bagian 8). |
+| `matikanLoginGoogle` | Matikan wajib login Google bila Super Admin terkunci (bagian 18). Client ID tetap tersimpan. |
 
-## 20. Alamat aplikasi, domain sendiri & Blogger (opsional)
+## 21. Alamat aplikasi, domain sendiri & Blogger (opsional)
 
 - Alamat aplikasi untuk member dan pengurus: `https://USERNAME.github.io/NAMA-REPO/`. Alamat `/exec` hanya untuk `GAS_URL`.
 - **Domain sendiri** (misalnya `jastip.namausaha.com`): di repository → **Settings → Pages → Custom domain**, lalu ikuti petunjuk DNS dari GitHub. `GAS_URL` tidak perlu diubah.
@@ -650,7 +698,7 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 </div>
 ```
 
-## 21. Cara kerja kecepatan
+## 22. Cara kerja kecepatan
 
 - Seluruh aplikasi dimuat sekali dari GitHub Pages, dan perpindahan menu murni di browser. Data awal (katalog, kurs, pengaturan publik) diambil dari API lalu disimpan di perangkat. Kunjungan berikutnya langsung tampil dari salinan itu, lalu diperbarui diam-diam bila server punya data lebih baru.
 - Semua panggilan ke server memakai satu alamat (`POST /exec`, `Content-Type: text/plain`), jadi browser tidak perlu permintaan izin CORS tambahan. Token sesi dikirim di badan permintaan, tidak pernah di URL.
@@ -658,8 +706,9 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 - Server memakai CacheService berversi, tulis batch, dan LockService. Harga, potongan voucher, dan poin dihitung ulang di server, jadi angka dari browser tidak dipercaya begitu saja.
 - Sinkronisasi hanya mengambil baris yang berubah sejak terakhir (sinkron selisih), dan buka ulang memakai salinan lokal di browser (bagian 9).
 - Saat masuk, data 45 hari terakhir dan tagihan belum lunas dimuat lebih dulu; data lama menyusul di latar tanpa menahan layar.
+- (1.4.5) Data awal diminta sejak baris pertama halaman, paralel dengan unduhan `app.js`. Pustaka berat (grafik, kalender, login Google) dimuat hanya saat dibutuhkan. Server menyimpan jawaban data awal per versi data dan menghangatkannya tiap 5 menit (`jobHangat`).
 
-## 22. Batasan yang perlu diketahui
+## 23. Batasan yang perlu diketahui
 
 - **Pengujian** dilakukan di simulator lokal (tiruan layanan GAS + Chromium), bukan di server Google asli: uji backend lulus semua dan alur E2E tanpa error, termasuk tiruan respons Fonnte (terhubung, terputus, token salah). Pada percobaan pertama di GAS, laporkan pesan error dari Log eksekusi bila ada.
 - **Pembayaran** (transfer, QRIS, maupun e-wallet) diverifikasi admin dari bukti bayar. Konfirmasi otomatis lewat payment gateway tidak termasuk.
@@ -672,13 +721,14 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 - **Akses Web App harus "Siapa saja"**. Dengan pilihan lain (misalnya "Siapa saja yang memiliki Akun Google"), browser pelanggan diarahkan ke halaman login Google dan aplikasi menampilkan "Server belum dapat dihubungi".
 - **Repository GitHub bersifat publik** (syarat GitHub Pages gratis). Isinya hanya kode tampilan dan `GAS_URL`; tidak ada data atau rahasia. Jangan pernah menaruh token atau kata sandi di repository.
 - **Cache GitHub Pages**: setelah `git push`, perubahan bisa butuh 1–10 menit sampai terlihat di semua perangkat. File `css/` dan `js/` diberi nomor versi otomatis agar tidak tercampur versi lama.
-- **CDN**: Bootstrap, Bootstrap Icons, flag-icons, flatpickr, Chart.js, ExcelJS, pustaka QR (qrcode-generator, jsQR), dan font Plus Jakarta Sans dimuat dari CDN publik, sehingga perangkat pengguna perlu terhubung internet.
+- **CDN**: Bootstrap, Bootstrap Icons, flag-icons, flatpickr, Chart.js, ExcelJS, pustaka QR (qrcode-generator, jsQR), Google Identity Services (tombol login Google), dan font Plus Jakarta Sans dimuat dari CDN publik, sehingga perangkat pengguna perlu terhubung internet.
+- **Login Google pengurus** butuh akun Google dengan email yang sama persis dengan Manajemen User. Pemblokir iklan/pop-up atau browser yang memblokir cookie pihak ketiga terlalu ketat bisa menyembunyikan tombol Google; izinkan `accounts.google.com`. Kecepatan buka pertama tetap bergantung pada waktu bangun server Google Apps Script (biasanya 1–3 detik).
 - **Satu akun satu perangkat**: login di perangkat baru otomatis mengakhiri sesi di perangkat lama (berlaku untuk semua peran, termasuk customer). Perangkat lama yang layarnya terbuka ditutup dalam ±15 detik.
 - **Salinan data di browser**: untuk buka ulang yang cepat, data terakhir disimpan di browser perangkat itu. Di komputer bersama, selalu tekan **Keluar** agar salinannya terhapus.
 - **Keluar otomatis** setelah 5 menit tanpa aktivitas berlaku juga saat mengisi formulir panjang tanpa mengetik; draf Form Pesanan tetap tersimpan otomatis di perangkat.
 - **Broadcast WhatsApp** berjalan dari trigger Apps Script tiap menit, jadi waktu kirim bisa bergeser beberapa detik sampai ±1 menit (Google tidak menjamin detik yang tepat). Satu broadcast maksimal 200 penerima, dan kuota pesan mengikuti paket Fonnte Anda. Kode voucher tidak dikunci ke penerima tertentu: siapa pun yang memegang kode bisa memakainya sekali. Kirim promosi hanya ke member yang bersedia menerima pesan agar nomor WhatsApp toko tidak dilaporkan spam.
 
-## 23. Pemecahan masalah
+## 24. Pemecahan masalah
 
 **Layar penjelasan saat membuka aplikasi.** Aplikasi memeriksa dirinya sendiri dan menampilkan penyebabnya:
 
@@ -710,6 +760,14 @@ Fungsi berikut hanya bisa dijalankan dari editor, tidak bisa dipanggil pengunjun
 **Foto barang terlihat kecil atau berbingkai putih.** Foto dibuat persegi utuh agar tidak ada sisi yang terpotong. Supaya barang tampil besar, ambil foto lebih dekat dengan barang di tengah.
 
 **Trip tidak tersimpan.** Sejak 1.3.2 alasannya tampil di dalam pop-up trip. *Isi tanggal … yang valid* → pilih ulang tanggal dari kalender. *Anda tidak memiliki akses* → minta Super Admin mencentang izin *Kelola katalog, trip & landing* untuk peran Anda. *Server sedang sibuk* → tunggu beberapa detik lalu tekan **Simpan** lagi. Pastikan juga sudah menerbitkan **versi baru** deployment setelah mengganti `Kode`.
+
+**Login Google pengurus gagal.**
+- *Akun Google … tidak terdaftar untuk pengguna ini* → masuk dengan akun Google yang emailnya tertera (tersamar) di layar, atau minta Super Admin membetulkan email di Manajemen User.
+- *Token Google bukan untuk aplikasi ini* → Client ID di Pengaturan berbeda dengan Client ID yang dipakai tombol; matikan saklar, simpan ulang Client ID yang benar, uji, lalu nyalakan lagi.
+- Tombol Google tidak muncul / muncul pesan *origin is not allowed* atau *Error 400: origin_mismatch* → tambahkan alamat aplikasi persis seperti di kartu pengaturan ke **Authorized JavaScript origins** (bagian 18 a.4). Perubahan di Google Cloud bisa butuh beberapa menit.
+- *Access blocked* / hanya sebagian pengurus yang bisa → project masih *Testing*: tekan **Publish app** di **Audience**, atau tambahkan email pengurus di **Test users**.
+- *Akun pengurus ini belum terhubung ke akun Google* → isi email Google akun itu di Manajemen User.
+- Super Admin terkunci → jalankan **`matikanLoginGoogle`** dari editor Apps Script.
 
 **Pengurus tidak bisa masuk karena kode OTP tidak sampai.** Pilih **Pakai cara lain** (email ↔ WhatsApp). Bila Super Admin sendiri terkunci, jalankan **`matikanOtpPengurus`** dari editor Apps Script, lalu periksa nomor/email di Manajemen User dan status Fonnte (bagian 5).
 
